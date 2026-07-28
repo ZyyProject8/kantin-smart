@@ -14,6 +14,9 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AppCheckoutRouteImport } from './routes/app.checkout'
+import { Route as AppCartRouteImport } from './routes/app.cart'
+import { Route as AppMenuIdRouteImport } from './routes/app.menu.$id'
 
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
@@ -40,19 +43,40 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppCheckoutRoute = AppCheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCartRoute = AppCartRouteImport.update({
+  id: '/cart',
+  path: '/cart',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMenuIdRoute = AppMenuIdRouteImport.update({
+  id: '/menu/$id',
+  path: '/menu/$id',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/app/cart': typeof AppCartRoute
+  '/app/checkout': typeof AppCheckoutRoute
   '/app/': typeof AppIndexRoute
+  '/app/menu/$id': typeof AppMenuIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/app/cart': typeof AppCartRoute
+  '/app/checkout': typeof AppCheckoutRoute
   '/app': typeof AppIndexRoute
+  '/app/menu/$id': typeof AppMenuIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -60,14 +84,41 @@ export interface FileRoutesById {
   '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/app/cart': typeof AppCartRoute
+  '/app/checkout': typeof AppCheckoutRoute
   '/app/': typeof AppIndexRoute
+  '/app/menu/$id': typeof AppMenuIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/app' | '/login' | '/register' | '/app/'
+  fullPaths:
+    | '/'
+    | '/app'
+    | '/login'
+    | '/register'
+    | '/app/cart'
+    | '/app/checkout'
+    | '/app/'
+    | '/app/menu/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/register' | '/app'
-  id: '__root__' | '/' | '/app' | '/login' | '/register' | '/app/'
+  to:
+    | '/'
+    | '/login'
+    | '/register'
+    | '/app/cart'
+    | '/app/checkout'
+    | '/app'
+    | '/app/menu/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/app'
+    | '/login'
+    | '/register'
+    | '/app/cart'
+    | '/app/checkout'
+    | '/app/'
+    | '/app/menu/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -114,15 +165,42 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/checkout': {
+      id: '/app/checkout'
+      path: '/checkout'
+      fullPath: '/app/checkout'
+      preLoaderRoute: typeof AppCheckoutRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/cart': {
+      id: '/app/cart'
+      path: '/cart'
+      fullPath: '/app/cart'
+      preLoaderRoute: typeof AppCartRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/menu/$id': {
+      id: '/app/menu/$id'
+      path: '/menu/$id'
+      fullPath: '/app/menu/$id'
+      preLoaderRoute: typeof AppMenuIdRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
 interface AppRouteChildren {
+  AppCartRoute: typeof AppCartRoute
+  AppCheckoutRoute: typeof AppCheckoutRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppMenuIdRoute: typeof AppMenuIdRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppCartRoute: AppCartRoute,
+  AppCheckoutRoute: AppCheckoutRoute,
   AppIndexRoute: AppIndexRoute,
+  AppMenuIdRoute: AppMenuIdRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
