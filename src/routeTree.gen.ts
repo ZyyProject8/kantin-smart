@@ -9,11 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SellerRouteImport } from './routes/seller'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/app'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SellerIndexRouteImport } from './routes/seller.index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as SellerOrdersRouteImport } from './routes/seller.orders'
+import { Route as SellerMenuRouteImport } from './routes/seller.menu'
 import { Route as AppProfileRouteImport } from './routes/app.profile'
 import { Route as AppHistoryRouteImport } from './routes/app.history'
 import { Route as AppCheckoutRouteImport } from './routes/app.checkout'
@@ -22,6 +27,11 @@ import { Route as AppTrackingIdRouteImport } from './routes/app.tracking.$id'
 import { Route as AppPickupIdRouteImport } from './routes/app.pickup.$id'
 import { Route as AppMenuIdRouteImport } from './routes/app.menu.$id'
 
+const SellerRoute = SellerRouteImport.update({
+  id: '/seller',
+  path: '/seller',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
@@ -37,15 +47,35 @@ const AppRoute = AppRouteImport.update({
   path: '/app',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SellerIndexRoute = SellerIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SellerRoute,
+} as any)
 const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppRoute,
+} as any)
+const SellerOrdersRoute = SellerOrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
+  getParentRoute: () => SellerRoute,
+} as any)
+const SellerMenuRoute = SellerMenuRouteImport.update({
+  id: '/menu',
+  path: '/menu',
+  getParentRoute: () => SellerRoute,
 } as any)
 const AppProfileRoute = AppProfileRouteImport.update({
   id: '/profile',
@@ -85,27 +115,36 @@ const AppMenuIdRoute = AppMenuIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/seller': typeof SellerRouteWithChildren
   '/app/cart': typeof AppCartRoute
   '/app/checkout': typeof AppCheckoutRoute
   '/app/history': typeof AppHistoryRoute
   '/app/profile': typeof AppProfileRoute
+  '/seller/menu': typeof SellerMenuRoute
+  '/seller/orders': typeof SellerOrdersRoute
   '/app/': typeof AppIndexRoute
+  '/seller/': typeof SellerIndexRoute
   '/app/menu/$id': typeof AppMenuIdRoute
   '/app/pickup/$id': typeof AppPickupIdRoute
   '/app/tracking/$id': typeof AppTrackingIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/app/cart': typeof AppCartRoute
   '/app/checkout': typeof AppCheckoutRoute
   '/app/history': typeof AppHistoryRoute
   '/app/profile': typeof AppProfileRoute
+  '/seller/menu': typeof SellerMenuRoute
+  '/seller/orders': typeof SellerOrdersRoute
   '/app': typeof AppIndexRoute
+  '/seller': typeof SellerIndexRoute
   '/app/menu/$id': typeof AppMenuIdRoute
   '/app/pickup/$id': typeof AppPickupIdRoute
   '/app/tracking/$id': typeof AppTrackingIdRoute
@@ -113,14 +152,19 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/seller': typeof SellerRouteWithChildren
   '/app/cart': typeof AppCartRoute
   '/app/checkout': typeof AppCheckoutRoute
   '/app/history': typeof AppHistoryRoute
   '/app/profile': typeof AppProfileRoute
+  '/seller/menu': typeof SellerMenuRoute
+  '/seller/orders': typeof SellerOrdersRoute
   '/app/': typeof AppIndexRoute
+  '/seller/': typeof SellerIndexRoute
   '/app/menu/$id': typeof AppMenuIdRoute
   '/app/pickup/$id': typeof AppPickupIdRoute
   '/app/tracking/$id': typeof AppTrackingIdRoute
@@ -129,41 +173,55 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/app'
     | '/login'
     | '/register'
+    | '/seller'
     | '/app/cart'
     | '/app/checkout'
     | '/app/history'
     | '/app/profile'
+    | '/seller/menu'
+    | '/seller/orders'
     | '/app/'
+    | '/seller/'
     | '/app/menu/$id'
     | '/app/pickup/$id'
     | '/app/tracking/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin'
     | '/login'
     | '/register'
     | '/app/cart'
     | '/app/checkout'
     | '/app/history'
     | '/app/profile'
+    | '/seller/menu'
+    | '/seller/orders'
     | '/app'
+    | '/seller'
     | '/app/menu/$id'
     | '/app/pickup/$id'
     | '/app/tracking/$id'
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/app'
     | '/login'
     | '/register'
+    | '/seller'
     | '/app/cart'
     | '/app/checkout'
     | '/app/history'
     | '/app/profile'
+    | '/seller/menu'
+    | '/seller/orders'
     | '/app/'
+    | '/seller/'
     | '/app/menu/$id'
     | '/app/pickup/$id'
     | '/app/tracking/$id'
@@ -171,13 +229,22 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
   AppRoute: typeof AppRouteWithChildren
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
+  SellerRoute: typeof SellerRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/seller': {
+      id: '/seller'
+      path: '/seller'
+      fullPath: '/seller'
+      preLoaderRoute: typeof SellerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/register': {
       id: '/register'
       path: '/register'
@@ -199,6 +266,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -206,12 +280,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/seller/': {
+      id: '/seller/'
+      path: '/'
+      fullPath: '/seller/'
+      preLoaderRoute: typeof SellerIndexRouteImport
+      parentRoute: typeof SellerRoute
+    }
     '/app/': {
       id: '/app/'
       path: '/'
       fullPath: '/app/'
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/seller/orders': {
+      id: '/seller/orders'
+      path: '/orders'
+      fullPath: '/seller/orders'
+      preLoaderRoute: typeof SellerOrdersRouteImport
+      parentRoute: typeof SellerRoute
+    }
+    '/seller/menu': {
+      id: '/seller/menu'
+      path: '/menu'
+      fullPath: '/seller/menu'
+      preLoaderRoute: typeof SellerMenuRouteImport
+      parentRoute: typeof SellerRoute
     }
     '/app/profile': {
       id: '/app/profile'
@@ -289,12 +384,39 @@ const AppRouteChildren: AppRouteChildren = {
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
+interface SellerRouteChildren {
+  SellerMenuRoute: typeof SellerMenuRoute
+  SellerOrdersRoute: typeof SellerOrdersRoute
+  SellerIndexRoute: typeof SellerIndexRoute
+}
+
+const SellerRouteChildren: SellerRouteChildren = {
+  SellerMenuRoute: SellerMenuRoute,
+  SellerOrdersRoute: SellerOrdersRoute,
+  SellerIndexRoute: SellerIndexRoute,
+}
+
+const SellerRouteWithChildren =
+  SellerRoute._addFileChildren(SellerRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   AppRoute: AppRouteWithChildren,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
+  SellerRoute: SellerRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
