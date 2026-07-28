@@ -14,8 +14,12 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AppProfileRouteImport } from './routes/app.profile'
+import { Route as AppHistoryRouteImport } from './routes/app.history'
 import { Route as AppCheckoutRouteImport } from './routes/app.checkout'
 import { Route as AppCartRouteImport } from './routes/app.cart'
+import { Route as AppTrackingIdRouteImport } from './routes/app.tracking.$id'
+import { Route as AppPickupIdRouteImport } from './routes/app.pickup.$id'
 import { Route as AppMenuIdRouteImport } from './routes/app.menu.$id'
 
 const RegisterRoute = RegisterRouteImport.update({
@@ -43,6 +47,16 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppProfileRoute = AppProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppHistoryRoute = AppHistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppCheckoutRoute = AppCheckoutRouteImport.update({
   id: '/checkout',
   path: '/checkout',
@@ -51,6 +65,16 @@ const AppCheckoutRoute = AppCheckoutRouteImport.update({
 const AppCartRoute = AppCartRouteImport.update({
   id: '/cart',
   path: '/cart',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppTrackingIdRoute = AppTrackingIdRouteImport.update({
+  id: '/tracking/$id',
+  path: '/tracking/$id',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPickupIdRoute = AppPickupIdRouteImport.update({
+  id: '/pickup/$id',
+  path: '/pickup/$id',
   getParentRoute: () => AppRoute,
 } as any)
 const AppMenuIdRoute = AppMenuIdRouteImport.update({
@@ -66,8 +90,12 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/app/cart': typeof AppCartRoute
   '/app/checkout': typeof AppCheckoutRoute
+  '/app/history': typeof AppHistoryRoute
+  '/app/profile': typeof AppProfileRoute
   '/app/': typeof AppIndexRoute
   '/app/menu/$id': typeof AppMenuIdRoute
+  '/app/pickup/$id': typeof AppPickupIdRoute
+  '/app/tracking/$id': typeof AppTrackingIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -75,8 +103,12 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/app/cart': typeof AppCartRoute
   '/app/checkout': typeof AppCheckoutRoute
+  '/app/history': typeof AppHistoryRoute
+  '/app/profile': typeof AppProfileRoute
   '/app': typeof AppIndexRoute
   '/app/menu/$id': typeof AppMenuIdRoute
+  '/app/pickup/$id': typeof AppPickupIdRoute
+  '/app/tracking/$id': typeof AppTrackingIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -86,8 +118,12 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/app/cart': typeof AppCartRoute
   '/app/checkout': typeof AppCheckoutRoute
+  '/app/history': typeof AppHistoryRoute
+  '/app/profile': typeof AppProfileRoute
   '/app/': typeof AppIndexRoute
   '/app/menu/$id': typeof AppMenuIdRoute
+  '/app/pickup/$id': typeof AppPickupIdRoute
+  '/app/tracking/$id': typeof AppTrackingIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -98,8 +134,12 @@ export interface FileRouteTypes {
     | '/register'
     | '/app/cart'
     | '/app/checkout'
+    | '/app/history'
+    | '/app/profile'
     | '/app/'
     | '/app/menu/$id'
+    | '/app/pickup/$id'
+    | '/app/tracking/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -107,8 +147,12 @@ export interface FileRouteTypes {
     | '/register'
     | '/app/cart'
     | '/app/checkout'
+    | '/app/history'
+    | '/app/profile'
     | '/app'
     | '/app/menu/$id'
+    | '/app/pickup/$id'
+    | '/app/tracking/$id'
   id:
     | '__root__'
     | '/'
@@ -117,8 +161,12 @@ export interface FileRouteTypes {
     | '/register'
     | '/app/cart'
     | '/app/checkout'
+    | '/app/history'
+    | '/app/profile'
     | '/app/'
     | '/app/menu/$id'
+    | '/app/pickup/$id'
+    | '/app/tracking/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -165,6 +213,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/profile': {
+      id: '/app/profile'
+      path: '/profile'
+      fullPath: '/app/profile'
+      preLoaderRoute: typeof AppProfileRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/history': {
+      id: '/app/history'
+      path: '/history'
+      fullPath: '/app/history'
+      preLoaderRoute: typeof AppHistoryRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/checkout': {
       id: '/app/checkout'
       path: '/checkout'
@@ -177,6 +239,20 @@ declare module '@tanstack/react-router' {
       path: '/cart'
       fullPath: '/app/cart'
       preLoaderRoute: typeof AppCartRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/tracking/$id': {
+      id: '/app/tracking/$id'
+      path: '/tracking/$id'
+      fullPath: '/app/tracking/$id'
+      preLoaderRoute: typeof AppTrackingIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/pickup/$id': {
+      id: '/app/pickup/$id'
+      path: '/pickup/$id'
+      fullPath: '/app/pickup/$id'
+      preLoaderRoute: typeof AppPickupIdRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/menu/$id': {
@@ -192,15 +268,23 @@ declare module '@tanstack/react-router' {
 interface AppRouteChildren {
   AppCartRoute: typeof AppCartRoute
   AppCheckoutRoute: typeof AppCheckoutRoute
+  AppHistoryRoute: typeof AppHistoryRoute
+  AppProfileRoute: typeof AppProfileRoute
   AppIndexRoute: typeof AppIndexRoute
   AppMenuIdRoute: typeof AppMenuIdRoute
+  AppPickupIdRoute: typeof AppPickupIdRoute
+  AppTrackingIdRoute: typeof AppTrackingIdRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppCartRoute: AppCartRoute,
   AppCheckoutRoute: AppCheckoutRoute,
+  AppHistoryRoute: AppHistoryRoute,
+  AppProfileRoute: AppProfileRoute,
   AppIndexRoute: AppIndexRoute,
   AppMenuIdRoute: AppMenuIdRoute,
+  AppPickupIdRoute: AppPickupIdRoute,
+  AppTrackingIdRoute: AppTrackingIdRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
