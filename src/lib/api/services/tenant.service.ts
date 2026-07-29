@@ -29,7 +29,7 @@ export async function getTenantById(id: string | number): Promise<Tenant | null>
 export async function getTenantMenus(tenantId: string | number): Promise<MenuItem[]> {
   if (USE_MOCK) {
     const { menus: allMenus } = await import("@/lib/mock-data");
-    return allMenus.menus.filter((m) => String(m.tenantId) === String(tenantId)) as unknown as MenuItem[];
+    return allMenus.filter((m) => String(m.tenantId) === String(tenantId)) as unknown as MenuItem[];
   }
 
   const response = await apiFetch<MenuItem[]>(`/tenants/${tenantId}/menus`);
