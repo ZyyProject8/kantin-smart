@@ -1,4 +1,5 @@
-import { createFileRoute, Outlet, Link, useRouterState } from "@tanstack/react-router";
+import { createFileRoute, Outlet, Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { useAuth } from "./__root";
 import { Logo } from "@/components/logo";
 import { Home, Search, ShoppingBag, Clock, User, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,13 @@ const navItems = [
 
 function AppLayout() {
   const pathname = useRouterState({ select: s => s.location.pathname });
+  const nav = useNavigate();
+  const auth = useAuth();
+
+  if (!auth.user) {
+    nav({ to: "/login" });
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-surface pb-24 md:pb-0">
@@ -44,7 +52,7 @@ function AppLayout() {
             <Link to="/app/cart">
               <Button variant="ghost" size="icon" className="relative">
                 <ShoppingBag className="h-5 w-5" />
-                <Badge className="absolute -right-1 -top-1 h-5 min-w-5 rounded-full px-1 text-[10px]">2</Badge>
+                <Badge className="absolute -right-1 -top-1 h-5 min-w-5 rounded-full px-1 text-[10px]">{auth.cartItems.length}</Badge>
               </Button>
             </Link>
             <Link to="/app/profile">

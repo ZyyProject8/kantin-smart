@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useAuth } from "./__root";
 import { menus, rupiah } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -20,13 +21,26 @@ export const Route = createFileRoute("/app/cart")({
 });
 
 function Cart() {
-  const [items, setItems] = useState([
-    { ...menus[0], qty: 1 },
-    { ...menus[2], qty: 2 },
-  ]);
-  const subtotal = items.reduce((s, i) => s + i.price * i.qty, 0);
+  const auth = useAuth();
+  const [note, setNote] = useState("");
+  const items = auth.cartItems;
+
+  const subtotal = items.reduce((s, i) => {
+    const menu = menus.find((menu) => menu.id === i.id);
+    const addonTotal = menu ? menu.addons.filter((a) => i.selectedAddons.includes(a.id)).reduce((sum, addon) => sum + addon.price, 0) : 0;
+    return s + (i.price + addonTotal) * i.qty;
+  }, 0);
   const service = 1000;
   const total = subtotal + service;
+
+  if (!auth.user) {
+    return (
+      <div className="mx-auto max-w-md text-center py-20">
+        <p className="text-muted-foreground">Silakan masuk terlebih dahulu untuk melihat keranjang.</p>
+        <Link to="/login"><Button className="mt-6">Masuk</Button></Link>
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (
@@ -57,15 +71,20 @@ function Cart() {
                 <div className="text-xs text-muted-foreground">{i.tenant}</div>
                 <div className="font-display font-semibold truncate">{i.name}</div>
                 <div className="mt-1 font-display font-bold text-primary">{rupiah(i.price)}</div>
+                {i.selectedAddons.length > 0 && (
+                  <div className="mt-2 text-xs text-muted-foreground">
+                    Tambahan: {menus.find((menu) => menu.id === i.id)?.addons.filter((a) => i.selectedAddons.includes(a.id)).map((a) => a.name).join(", ")}
+                  </div>
+                )}
               </div>
               <div className="flex flex-col items-end justify-between">
-                <button onClick={() => setItems(list => list.filter(x => x.id !== i.id))} className="text-muted-foreground hover:text-destructive">
+                <button onClick={() => auth.removeFromCart(i.id)} className="text-muted-foreground hover:text-destructive">
                   <Trash2 className="h-4 w-4" />
                 </button>
                 <div className="flex items-center gap-1">
-                  <Button size="icon" variant="outline" className="h-7 w-7" onClick={() => setItems(list => list.map(x => x.id === i.id ? { ...x, qty: Math.max(1, x.qty - 1) } : x))}><Minus className="h-3 w-3" /></Button>
+                  <Button size="icon" variant="outline" className="h-7 w-7" onClick={() => auth.updateQty(i.id, Math.max(1, i.qty - 1))}><Minus className="h-3 w-3" /></Button>
                   <span className="w-6 text-center text-sm font-semibold">{i.qty}</span>
-                  <Button size="icon" variant="outline" className="h-7 w-7" onClick={() => setItems(list => list.map(x => x.id === i.id ? { ...x, qty: x.qty + 1 } : x))}><Plus className="h-3 w-3" /></Button>
+                  <Button size="icon" variant="outline" className="h-7 w-7" onClick={() => auth.updateQty(i.id, i.qty + 1)}><Plus className="h-3 w-3" /></Button>
                 </div>
               </div>
             </Card>

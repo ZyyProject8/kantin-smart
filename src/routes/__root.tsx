@@ -7,11 +7,45 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, createContext, useContext, type FormEvent, type ReactNode } from "react";
 import { Toaster } from "@/components/ui/sonner";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import type { MenuItem } from "@/lib/mock-data";
+
+export type User = {
+  name: string;
+  email: string;
+  role: string;
+};
+
+export type CartItem = MenuItem & {
+  qty: number;
+  selectedAddons: string[];
+};
+
+export interface AuthContext {
+  user: User | null;
+  login: (user: User) => void;
+  logout: () => void;
+  cartItems: CartItem[];
+  addToCart: (menu: MenuItem, qty: number, selectedAddons: string[]) => void;
+  removeFromCart: (menuId: string) => void;
+  updateQty: (menuId: string, qty: number) => void;
+  clearCart: () => void;
+}
+
+const AuthContextReact = createContext<AuthContext | null>(null);
+
+export function useAuth() {
+  const context = useContext(AuthContextReact);
+  if (!context) {
+    throw new Error("useAuth must be used within AuthContextReact.Provider");
+  }
+  return context;
+}
+
 
 function NotFoundComponent() {
   return (
@@ -116,11 +150,59 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const [user, setUser] = useState<User | null>(() => {
+    const stored = typeof window !== "undefined" ? window.localStorage.getItem("kantin_user") : null;
+    return stored ? JSON.parse(stored) : null;
+  });
+  const [cartItems, setCartItems] = useState<CartItem[]>(() => {
+    const stored = typeof window !== "undefined" ? window.localStorage.getItem("kantin_cart") : null;
+    return stored ? JSON.parse(stored) : [];
+  });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem("kantin_user", JSON.stringify(user));
+  }, [user]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem("kantin_cart", JSON.stringify(cartItems));
+  }, [cartItems]);
+
+  const auth: AuthContext = {
+    user,
+    login: (nextUser) => setUser(nextUser),
+    logout: () => {
+      setUser(null);
+      setCartItems([]);
+      window.localStorage.removeItem("kantin_user");
+      window.localStorage.removeItem("kantin_cart");
+    },
+    cartItems,
+    addToCart: (menu, qty, selectedAddons) => {
+      setCartItems((prev) => {
+        const existing = prev.find((item) => item.id === menu.id);
+        if (existing) {
+          return prev.map((item) =>
+            item.id === menu.id
+              ? { ...item, qty: item.qty + qty, selectedAddons }
+              : item,
+          );
+        }
+        return [...prev, { ...menu, qty, selectedAddons }];
+      });
+    },
+    removeFromCart: (menuId) => setCartItems((prev) => prev.filter((item) => item.id !== menuId)),
+    updateQty: (menuId, qty) => setCartItems((prev) => prev.map((item) => (item.id === menuId ? { ...item, qty } : item))),
+    clearCart: () => setCartItems([]),
+  };
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
-      <Toaster position="top-center" richColors />
+      <AuthContextReact.Provider value={auth}>
+        <Outlet />
+        <Toaster position="top-center" richColors />
+      </AuthContextReact.Provider>
     </QueryClientProvider>
   );
 }

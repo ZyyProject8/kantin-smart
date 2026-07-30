@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useAuth } from "./__root";
 import { menus, rupiah } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -27,6 +28,7 @@ function Detail() {
   const [qty, setQty] = useState(1);
   const [selected, setSelected] = useState<string[]>([]);
   const nav = useNavigate();
+  const auth = useAuth();
 
   const addonTotal = m.addons.filter(a => selected.includes(a.id)).reduce((s, a) => s + a.price, 0);
   const total = (m.price + addonTotal) * qty;
@@ -94,7 +96,15 @@ function Detail() {
               <div className="text-xs text-muted-foreground">Total</div>
               <div className="font-display text-2xl font-extrabold">{rupiah(total)}</div>
             </div>
-            <Button size="lg" className="gap-2 flex-1 max-w-xs" onClick={() => { toast.success("Ditambahkan ke keranjang"); nav({ to: "/app/cart" }); }}>
+            <Button
+              size="lg"
+              className="gap-2 flex-1 max-w-xs"
+              onClick={() => {
+                auth.addToCart(m, qty, selected);
+                toast.success("Ditambahkan ke keranjang");
+                nav({ to: "/app/cart" });
+              }}
+            >
               <ShoppingBag className="h-4 w-4" /> Tambah ke Keranjang
             </Button>
           </div>

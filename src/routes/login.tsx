@@ -1,4 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useAuth } from "./__root";
+import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +23,22 @@ export const Route = createFileRoute("/login")({
 
 function Login() {
   const nav = useNavigate();
+  const auth = useAuth();
+  const [email, setEmail] = useState("dinda@sekolah.id");
+  const [password, setPassword] = useState("");
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!email.trim() || !password.trim()) {
+      toast.error("Email dan kata sandi harus diisi.");
+      return;
+    }
+
+    auth.login({ name: "Dinda Puspita", email, role: "Siswa" });
+    toast.success("Berhasil masuk!");
+    nav({ to: "/app" });
+  };
+
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
       <div className="hidden lg:flex flex-col justify-between p-10 gradient-primary text-primary-foreground relative overflow-hidden">
@@ -39,12 +57,12 @@ function Login() {
           <Card className="w-full max-w-md p-8 shadow-soft border-none">
             <h1 className="font-display text-3xl font-bold">Masuk</h1>
             <p className="mt-1 text-sm text-muted-foreground">Gunakan akun Anda untuk melanjutkan.</p>
-            <form className="mt-8 space-y-4" onSubmit={(e) => { e.preventDefault(); toast.success("Berhasil masuk!"); nav({ to: "/app" }); }}>
+            <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
               <div className="space-y-1.5">
                 <Label htmlFor="email">Email</Label>
                 <div className="relative">
                   <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input id="email" type="email" defaultValue="dinda@sekolah.id" placeholder="nama@sekolah.id" className="pl-9 h-11" />
+                  <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="nama@sekolah.id" className="pl-9 h-11" />
                 </div>
               </div>
               <div className="space-y-1.5">
@@ -54,7 +72,7 @@ function Login() {
                 </div>
                 <div className="relative">
                   <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input id="password" type="password" defaultValue="password" className="pl-9 h-11" />
+                  <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Kata sandi" className="pl-9 h-11" />
                 </div>
               </div>
               <Button type="submit" size="lg" className="w-full gap-2 h-11">Masuk <ArrowRight className="h-4 w-4" /></Button>

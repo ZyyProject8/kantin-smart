@@ -9,42 +9,27 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SellerRouteImport } from './routes/seller'
-import { Route as RegisterRouteImport } from './routes/register'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as AppRouteImport } from './routes/app'
-import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as SellerIndexRouteImport } from './routes/seller.index'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AppRouteImport } from './routes/app'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as RegisterRouteImport } from './routes/register'
+import { Route as SellerRouteImport } from './routes/seller'
 import { Route as AppIndexRouteImport } from './routes/app.index'
-import { Route as SellerOrdersRouteImport } from './routes/seller.orders'
-import { Route as SellerMenuRouteImport } from './routes/seller.menu'
-import { Route as AppProfileRouteImport } from './routes/app.profile'
-import { Route as AppHistoryRouteImport } from './routes/app.history'
-import { Route as AppCheckoutRouteImport } from './routes/app.checkout'
 import { Route as AppCartRouteImport } from './routes/app.cart'
-import { Route as AppTrackingIdRouteImport } from './routes/app.tracking.$id'
-import { Route as AppPickupIdRouteImport } from './routes/app.pickup.$id'
+import { Route as AppCheckoutRouteImport } from './routes/app.checkout'
+import { Route as AppHistoryRouteImport } from './routes/app.history'
+import { Route as AppProfileRouteImport } from './routes/app.profile'
+import { Route as SellerIndexRouteImport } from './routes/seller.index'
+import { Route as SellerMenuRouteImport } from './routes/seller.menu'
+import { Route as SellerOrdersRouteImport } from './routes/seller.orders'
 import { Route as AppMenuIdRouteImport } from './routes/app.menu.$id'
+import { Route as AppPickupIdRouteImport } from './routes/app.pickup.$id'
+import { Route as AppTrackingIdRouteImport } from './routes/app.tracking.$id'
 
-const SellerRoute = SellerRouteImport.update({
-  id: '/seller',
-  path: '/seller',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RegisterRoute = RegisterRouteImport.update({
-  id: '/register',
-  path: '/register',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AppRoute = AppRouteImport.update({
-  id: '/app',
-  path: '/app',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -52,44 +37,29 @@ const AdminRoute = AdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AppRoute = AppRouteImport.update({
+  id: '/app',
+  path: '/app',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SellerIndexRoute = SellerIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => SellerRoute,
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SellerRoute = SellerRouteImport.update({
+  id: '/seller',
+  path: '/seller',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AppRoute,
-} as any)
-const SellerOrdersRoute = SellerOrdersRouteImport.update({
-  id: '/orders',
-  path: '/orders',
-  getParentRoute: () => SellerRoute,
-} as any)
-const SellerMenuRoute = SellerMenuRouteImport.update({
-  id: '/menu',
-  path: '/menu',
-  getParentRoute: () => SellerRoute,
-} as any)
-const AppProfileRoute = AppProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppHistoryRoute = AppHistoryRouteImport.update({
-  id: '/history',
-  path: '/history',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppCheckoutRoute = AppCheckoutRouteImport.update({
-  id: '/checkout',
-  path: '/checkout',
   getParentRoute: () => AppRoute,
 } as any)
 const AppCartRoute = AppCartRouteImport.update({
@@ -97,9 +67,39 @@ const AppCartRoute = AppCartRouteImport.update({
   path: '/cart',
   getParentRoute: () => AppRoute,
 } as any)
-const AppTrackingIdRoute = AppTrackingIdRouteImport.update({
-  id: '/tracking/$id',
-  path: '/tracking/$id',
+const AppCheckoutRoute = AppCheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppHistoryRoute = AppHistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProfileRoute = AppProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AppRoute,
+} as any)
+const SellerIndexRoute = SellerIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SellerRoute,
+} as any)
+const SellerMenuRoute = SellerMenuRouteImport.update({
+  id: '/menu',
+  path: '/menu',
+  getParentRoute: () => SellerRoute,
+} as any)
+const SellerOrdersRoute = SellerOrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
+  getParentRoute: () => SellerRoute,
+} as any)
+const AppMenuIdRoute = AppMenuIdRouteImport.update({
+  id: '/menu/$id',
+  path: '/menu/$id',
   getParentRoute: () => AppRoute,
 } as any)
 const AppPickupIdRoute = AppPickupIdRouteImport.update({
@@ -107,9 +107,9 @@ const AppPickupIdRoute = AppPickupIdRouteImport.update({
   path: '/pickup/$id',
   getParentRoute: () => AppRoute,
 } as any)
-const AppMenuIdRoute = AppMenuIdRouteImport.update({
-  id: '/menu/$id',
-  path: '/menu/$id',
+const AppTrackingIdRoute = AppTrackingIdRouteImport.update({
+  id: '/tracking/$id',
+  path: '/tracking/$id',
   getParentRoute: () => AppRoute,
 } as any)
 
@@ -238,32 +238,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/seller': {
-      id: '/seller'
-      path: '/seller'
-      fullPath: '/seller'
-      preLoaderRoute: typeof SellerRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/register': {
-      id: '/register'
-      path: '/register'
-      fullPath: '/register'
-      preLoaderRoute: typeof RegisterRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/app': {
-      id: '/app'
-      path: '/app'
-      fullPath: '/app'
-      preLoaderRoute: typeof AppRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -273,60 +252,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/seller/': {
-      id: '/seller/'
-      path: '/'
-      fullPath: '/seller/'
-      preLoaderRoute: typeof SellerIndexRouteImport
-      parentRoute: typeof SellerRoute
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/seller': {
+      id: '/seller'
+      path: '/seller'
+      fullPath: '/seller'
+      preLoaderRoute: typeof SellerRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/app/': {
       id: '/app/'
       path: '/'
       fullPath: '/app/'
       preLoaderRoute: typeof AppIndexRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/seller/orders': {
-      id: '/seller/orders'
-      path: '/orders'
-      fullPath: '/seller/orders'
-      preLoaderRoute: typeof SellerOrdersRouteImport
-      parentRoute: typeof SellerRoute
-    }
-    '/seller/menu': {
-      id: '/seller/menu'
-      path: '/menu'
-      fullPath: '/seller/menu'
-      preLoaderRoute: typeof SellerMenuRouteImport
-      parentRoute: typeof SellerRoute
-    }
-    '/app/profile': {
-      id: '/app/profile'
-      path: '/profile'
-      fullPath: '/app/profile'
-      preLoaderRoute: typeof AppProfileRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/history': {
-      id: '/app/history'
-      path: '/history'
-      fullPath: '/app/history'
-      preLoaderRoute: typeof AppHistoryRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/checkout': {
-      id: '/app/checkout'
-      path: '/checkout'
-      fullPath: '/app/checkout'
-      preLoaderRoute: typeof AppCheckoutRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/cart': {
@@ -336,11 +294,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCartRouteImport
       parentRoute: typeof AppRoute
     }
-    '/app/tracking/$id': {
-      id: '/app/tracking/$id'
-      path: '/tracking/$id'
-      fullPath: '/app/tracking/$id'
-      preLoaderRoute: typeof AppTrackingIdRouteImport
+    '/app/checkout': {
+      id: '/app/checkout'
+      path: '/checkout'
+      fullPath: '/app/checkout'
+      preLoaderRoute: typeof AppCheckoutRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/history': {
+      id: '/app/history'
+      path: '/history'
+      fullPath: '/app/history'
+      preLoaderRoute: typeof AppHistoryRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/profile': {
+      id: '/app/profile'
+      path: '/profile'
+      fullPath: '/app/profile'
+      preLoaderRoute: typeof AppProfileRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/seller/': {
+      id: '/seller/'
+      path: '/'
+      fullPath: '/seller/'
+      preLoaderRoute: typeof SellerIndexRouteImport
+      parentRoute: typeof SellerRoute
+    }
+    '/seller/menu': {
+      id: '/seller/menu'
+      path: '/menu'
+      fullPath: '/seller/menu'
+      preLoaderRoute: typeof SellerMenuRouteImport
+      parentRoute: typeof SellerRoute
+    }
+    '/seller/orders': {
+      id: '/seller/orders'
+      path: '/orders'
+      fullPath: '/seller/orders'
+      preLoaderRoute: typeof SellerOrdersRouteImport
+      parentRoute: typeof SellerRoute
+    }
+    '/app/menu/$id': {
+      id: '/app/menu/$id'
+      path: '/menu/$id'
+      fullPath: '/app/menu/$id'
+      preLoaderRoute: typeof AppMenuIdRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/pickup/$id': {
@@ -350,11 +350,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppPickupIdRouteImport
       parentRoute: typeof AppRoute
     }
-    '/app/menu/$id': {
-      id: '/app/menu/$id'
-      path: '/menu/$id'
-      fullPath: '/app/menu/$id'
-      preLoaderRoute: typeof AppMenuIdRouteImport
+    '/app/tracking/$id': {
+      id: '/app/tracking/$id'
+      path: '/tracking/$id'
+      fullPath: '/app/tracking/$id'
+      preLoaderRoute: typeof AppTrackingIdRouteImport
       parentRoute: typeof AppRoute
     }
   }

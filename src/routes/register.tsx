@@ -1,4 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useAuth } from "./__root";
+import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,6 +24,23 @@ export const Route = createFileRoute("/register")({
 
 function Register() {
   const nav = useNavigate();
+  const auth = useAuth();
+  const [name, setName] = useState("Dinda P.");
+  const [email, setEmail] = useState("dinda@sekolah.id");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState("siswa");
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!name.trim() || !email.trim() || !password.trim()) {
+      toast.error("Semua bidang harus diisi.");
+      return;
+    }
+    auth.login({ name, email, role });
+    toast.success("Akun berhasil dibuat!");
+    nav({ to: "/app" });
+  };
+
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
       <div className="flex flex-col p-6 md:p-10 order-2 lg:order-1">
@@ -30,15 +49,15 @@ function Register() {
           <Card className="w-full max-w-md p-8 shadow-soft border-none">
             <h1 className="font-display text-3xl font-bold">Buat akun</h1>
             <p className="mt-1 text-sm text-muted-foreground">Gratis. Hanya butuh 30 detik.</p>
-            <form className="mt-8 space-y-4" onSubmit={(e) => { e.preventDefault(); toast.success("Akun berhasil dibuat!"); nav({ to: "/app" }); }}>
+            <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
                   <Label>Nama lengkap</Label>
-                  <Input placeholder="Nama Anda" className="h-11" defaultValue="Dinda P." />
+                  <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Nama Anda" className="h-11" />
                 </div>
                 <div className="space-y-1.5">
                   <Label>Peran</Label>
-                  <Select defaultValue="siswa">
+                  <Select value={role} onValueChange={(value) => setRole(value)}>
                     <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="siswa">Siswa / Mahasiswa</SelectItem>
@@ -50,7 +69,7 @@ function Register() {
               </div>
               <div className="space-y-1.5">
                 <Label>Email</Label>
-                <Input type="email" placeholder="nama@sekolah.id" className="h-11" />
+                <Input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="nama@sekolah.id" className="h-11" />
               </div>
               <div className="space-y-1.5">
                 <Label>Nomor HP</Label>
@@ -58,7 +77,7 @@ function Register() {
               </div>
               <div className="space-y-1.5">
                 <Label>Kata sandi</Label>
-                <Input type="password" placeholder="Minimal 8 karakter" className="h-11" />
+                <Input value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="Minimal 8 karakter" className="h-11" />
               </div>
               <Button type="submit" size="lg" className="w-full gap-2 h-11">Daftar <ArrowRight className="h-4 w-4" /></Button>
             </form>

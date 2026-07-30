@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useAuth } from "./__root";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -23,10 +24,49 @@ export const Route = createFileRoute("/app/checkout")({
 
 function Checkout() {
   const nav = useNavigate();
-  const items = [menus[0], menus[2]];
-  const subtotal = items.reduce((s, i) => s + i.price, 0);
-  const total = subtotal + 1000;
+  const auth = useAuth();
   const [time, setTime] = useState("12:15");
+  const [paymentMethod, setPaymentMethod] = useState("ewallet");
+
+  const items = auth.cartItems;
+  const subtotal = items.reduce((s, i) => {
+    const menu = menus.find((menu) => menu.id === i.id);
+    const addonTotal = menu ? menu.addons.filter((a) => i.selectedAddons.includes(a.id)).reduce((sum, addon) => sum + addon.price, 0) : 0;
+    return s + (i.price + addonTotal) * i.qty;
+  }, 0);
+  const total = subtotal + 1000;
+
+  const handleConfirm = () => {
+    if (!items.length) {
+      toast.error("Keranjang kosong. Tambahkan menu terlebih dahulu.");
+      return;
+    }
+    auth.clearCart();
+    toast.success(`Pesanan dikonfirmasi (${paymentMethod === "ewallet" ? "E-Wallet" : "Tunai"})`);
+    nav({ to: "/app/tracking/$id", params: { id: "k2410" } });
+  };
+
+  if (!auth.user) {
+    return (
+      <div className="mx-auto max-w-md text-center py-20">
+        <p className="text-muted-foreground">Silakan masuk terlebih dahulu untuk checkout.</p>
+        <Link to="/login"><Button className="mt-6">Masuk</Button></Link>
+      </div>
+    );
+  }
+
+  if (!items.length) {
+    return (
+      <div className="mx-auto max-w-md text-center py-20">
+        <div className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-muted">
+          <ShoppingBag className="h-8 w-8 text-muted-foreground" />
+        </div>
+        <h2 className="mt-6 font-display text-2xl font-bold">Keranjang kosong</h2>
+        <p className="mt-2 text-muted-foreground text-sm">Pilih menu dulu sebelum lanjut pembayaran.</p>
+        <Link to="/app"><Button className="mt-6">Jelajahi Menu</Button></Link>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -103,7 +143,7 @@ function Checkout() {
             <Separator className="my-3" />
             <div className="flex justify-between font-display text-xl font-extrabold"><span>Total</span><span className="text-primary">{rupiah(total)}</span></div>
           </div>
-          <Button size="lg" className="w-full mt-6" onClick={() => { toast.success("Pesanan dikonfirmasi!"); nav({ to: "/app/tracking/$id", params: { id: "K-2410" } }); }}>
+          <Button size="lg" className="w-full mt-6" onClick={handleConfirm}>
             Konfirmasi Pesanan
           </Button>
           <p className="mt-3 text-center text-xs text-muted-foreground">Dengan menekan konfirmasi, Anda menyetujui S&K.</p>
