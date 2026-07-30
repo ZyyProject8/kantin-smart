@@ -30,15 +30,36 @@ function Register() {
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("siswa");
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!name.trim() || !email.trim() || !password.trim()) {
       toast.error("Semua bidang harus diisi.");
       return;
     }
-    auth.login({ name, email, role });
-    toast.success("Akun berhasil dibuat!");
-    nav({ to: "/app" });
+    
+    setIsLoading(true);
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password, role }),
+      });
+      
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Gagal mendaftar");
+      }
+      
+      auth.login(data);
+      toast.success("Akun berhasil dibuat!");
+      nav({ to: role === "admin" ? "/admin" : role === "seller" ? "/seller" : "/app" });
+    } catch (err: any) {
+      toast.error(err.message || "Terjadi kesalahan sistem");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -60,9 +81,8 @@ function Register() {
                   <Select value={role} onValueChange={(value) => setRole(value)}>
                     <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="siswa">Siswa / Mahasiswa</SelectItem>
-                      <SelectItem value="pegawai">Pegawai</SelectItem>
-                      <SelectItem value="tenant">Penjual Tenant</SelectItem>
+                      <SelectItem value="siswa">Siswa</SelectItem>
+                      <SelectItem value="seller">Tenant</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -79,7 +99,9 @@ function Register() {
                 <Label>Kata sandi</Label>
                 <Input value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="Minimal 8 karakter" className="h-11" />
               </div>
-              <Button type="submit" size="lg" className="w-full gap-2 h-11">Daftar <ArrowRight className="h-4 w-4" /></Button>
+              <Button type="submit" size="lg" disabled={isLoading} className="w-full gap-2 h-11">
+                {isLoading ? "Mendaftar..." : <>Daftar <ArrowRight className="h-4 w-4" /></>}
+              </Button>
             </form>
             <p className="mt-6 text-center text-sm text-muted-foreground">
               Sudah punya akun? <Link to="/login" className="font-semibold text-primary hover:underline">Masuk</Link>

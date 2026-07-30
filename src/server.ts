@@ -3,6 +3,8 @@ import "./lib/error-capture";
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
 import { handleMenusApiRequest } from "./serverFns/api/menus";
+import { handleAuthApiRequest } from "./serverFns/api/auth";
+import { handleMenuItemsApiRequest } from "./serverFns/api/menu-items";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -51,6 +53,12 @@ export default {
       const url = new URL(request.url);
       if (url.pathname.startsWith("/api/menus")) {
         return await handleMenusApiRequest(request);
+      }
+      if (url.pathname.startsWith("/api/auth")) {
+        return await handleAuthApiRequest(request);
+      }
+      if (url.pathname.startsWith("/api/menu-items")) {
+        return await handleMenuItemsApiRequest(request);
       }
 
       const handler = await getServerEntry();

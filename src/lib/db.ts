@@ -1,6 +1,14 @@
 import { Pool } from "pg";
+import { config } from "dotenv";
+
+// Load .env in dev (no-op in production where env vars are injected)
+config();
 
 const connectionString = process.env.DATABASE_URL ?? "";
+
+if (!connectionString) {
+  console.warn("[db] WARNING: DATABASE_URL is not set!");
+}
 
 export const pool = new Pool({ connectionString });
 

@@ -1,10 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useAuth } from "./__root";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { menus, categories, tenants, orderHistory, rupiah } from "@/lib/mock-data";
-import { Search, SlidersHorizontal, Star, Clock, TrendingUp, Flame, Sparkles, ChevronRight } from "lucide-react";
+import { rupiah } from "@/lib/mock-data";
+import { Search, Sparkles, UtensilsCrossed, Coffee, ShoppingCart } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/")({
   head: () => ({
@@ -18,25 +21,89 @@ export const Route = createFileRoute("/app/")({
   component: BuyerHome,
 });
 
+type Tab = "semua" | "makanan" | "minuman";
+
 function BuyerHome() {
-  const populer = menus.slice(0, 4);
-  const terbaru = menus.slice(2, 6);
-  const rekomendasi = menus.slice(1, 5);
+  const auth = useAuth();
+  const [menus, setMenus] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [activeTab, setActiveTab] = useState<Tab>("semua");
+
+  const fetchMenus = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/menu-items");
+      const data = await res.json();
+      setMenus(Array.isArray(data) ? data : []);
+    } catch { /* ignore */ }
+    finally { setLoading(false); }
+  }, []);
+
+  useEffect(() => { fetchMenus(); }, [fetchMenus]);
+
+  const filtered = menus.filter(m => {
+    const matchSearch = m.name.toLowerCase().includes(search.toLowerCase()) ||
+      (m.description || "").toLowerCase().includes(search.toLowerCase());
+    if (!matchSearch) return false;
+    if (activeTab === "makanan") return m.category !== "Minuman";
+    if (activeTab === "minuman") return m.category === "Minuman";
+    return true;
+  });
+
+  const handleAddToCart = (m: any) => {
+    if (m.is_sold_out || m.stock <= 0) {
+      toast.error("Menu ini sudah habis / Sold Out");
+      return;
+    }
+    // Build a compatible menu object for addToCart
+    const menuItem = {
+      id: m.id,
+      name: m.name,
+      price: m.price,
+      image: m.image_url || "",
+      tenant: m.seller_name || "Tenant",
+      tenantId: m.seller_id || "",
+      category: m.category,
+      description: m.description || "",
+      stock: m.stock,
+      rating: 0,
+      prepTime: "",
+      allergens: [],
+      addons: [],
+    };
+    auth.addToCart(menuItem as any, 1, [], {});
+    toast.success(`${m.name} ditambahkan ke keranjang!`);
+  };
+
+  const greeting = () => {
+    const h = new Date().getHours();
+    if (h < 11) return "Selamat pagi";
+    if (h < 15) return "Selamat siang";
+    if (h < 18) return "Selamat sore";
+    return "Selamat malam";
+  };
+
+  const userName = auth.user?.name?.split(" ")[0] || "Kamu";
 
   return (
     <div className="space-y-10">
       {/* Greeting + search */}
       <section>
         <div className="grid gap-2">
-          <p className="text-sm text-muted-foreground">Selamat siang,</p>
-          <h1 className="font-display text-3xl font-extrabold md:text-4xl">Mau makan apa hari ini, Dinda? 👋</h1>
+          <p className="text-sm text-muted-foreground">{greeting()},</p>
+          <h1 className="font-display text-3xl font-extrabold md:text-4xl">
+            Mau makan apa hari ini, {userName}? 👋
+          </h1>
         </div>
-        <div className="mt-6 flex gap-2">
-          <div className="relative flex-1">
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input placeholder="Cari menu atau tenant..." className="h-12 pl-11 rounded-xl bg-background" />
-          </div>
-          <Button size="lg" variant="outline" className="h-12 gap-2"><SlidersHorizontal className="h-4 w-4" /> Filter</Button>
+        <div className="mt-6 relative max-w-xl">
+          <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Cari menu atau kategori..."
+            className="h-12 pl-11 rounded-xl bg-background"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
         </div>
       </section>
 
@@ -45,8 +112,12 @@ function BuyerHome() {
         <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
         <div className="relative grid gap-4 md:grid-cols-[2fr_1fr] items-center">
           <div>
-            <Badge className="bg-white/20 text-primary-foreground border-none rounded-full mb-3"><Sparkles className="h-3 w-3 mr-1" /> Promo Jumat</Badge>
-            <h2 className="font-display text-2xl md:text-4xl font-extrabold leading-tight">Diskon 20% <br />semua menu minuman!</h2>
+            <Badge className="bg-white/20 text-primary-foreground border-none rounded-full mb-3">
+              <Sparkles className="h-3 w-3 mr-1" /> Promo Hari Ini
+            </Badge>
+            <h2 className="font-display text-2xl md:text-4xl font-extrabold leading-tight">
+              Diskon 20% <br />semua menu minuman!
+            </h2>
             <p className="mt-2 opacity-90 text-sm">Berlaku hari ini hingga pukul 17:00.</p>
             <Button variant="secondary" className="mt-4">Ambil Promo</Button>
           </div>
@@ -54,130 +125,97 @@ function BuyerHome() {
         </div>
       </section>
 
-      {/* Categories */}
-      <section>
-        <SectionHeader title="Kategori" />
-        <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-6">
-          {categories.map(c => (
-            <Card key={c.id} className="flex flex-col items-center gap-2 p-4 cursor-pointer transition hover:-translate-y-0.5 hover:border-primary/50">
-              <div className="text-3xl">{c.icon}</div>
-              <div className="text-xs font-medium">{c.name}</div>
-            </Card>
-          ))}
+      {/* Tab filter */}
+      <section className="space-y-6">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setActiveTab("semua")}
+            className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-all ${activeTab === "semua" ? "bg-primary text-primary-foreground shadow" : "bg-muted text-muted-foreground hover:text-foreground"}`}
+          >
+            Semua Menu
+          </button>
+          <button
+            onClick={() => setActiveTab("makanan")}
+            className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-all ${activeTab === "makanan" ? "bg-primary text-primary-foreground shadow" : "bg-muted text-muted-foreground hover:text-foreground"}`}
+          >
+            <UtensilsCrossed className="h-4 w-4" /> Makanan
+          </button>
+          <button
+            onClick={() => setActiveTab("minuman")}
+            className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-all ${activeTab === "minuman" ? "bg-primary text-primary-foreground shadow" : "bg-muted text-muted-foreground hover:text-foreground"}`}
+          >
+            <Coffee className="h-4 w-4" /> Minuman
+          </button>
         </div>
-      </section>
 
-      {/* Menu populer */}
-      <section>
-        <SectionHeader title="Menu Populer" icon={<Flame className="h-5 w-5 text-destructive" />} action="Lihat semua" />
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {populer.map(m => <MenuCard key={m.id} m={m} />)}
-        </div>
-      </section>
-
-      {/* Tenant favorit */}
-      <section>
-        <SectionHeader title="Tenant Favorit" icon={<Star className="h-5 w-5 text-warning" />} />
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {tenants.map(t => (
-            <Card key={t.id} className="overflow-hidden group cursor-pointer transition hover:-translate-y-0.5">
-              <div className="relative aspect-[16/9] overflow-hidden">
-                <img src={t.image} alt={t.name} className="h-full w-full object-cover transition group-hover:scale-105" />
-              </div>
-              <div className="p-4">
-                <div className="font-display font-bold truncate">{t.name}</div>
-                <div className="mt-1 flex items-center gap-3 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1"><Star className="h-3 w-3 fill-warning text-warning" /> {t.rating}</span>
-                  <span>{t.orders}+ order</span>
+        {loading ? (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {[...Array(6)].map((_, i) => (
+              <Card key={i} className="overflow-hidden animate-pulse">
+                <div className="aspect-[4/3] bg-muted" />
+                <div className="p-4 space-y-2">
+                  <div className="h-4 bg-muted rounded w-3/4" />
+                  <div className="h-3 bg-muted rounded w-1/2" />
                 </div>
-              </div>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      {/* Menu terbaru */}
-      <section>
-        <SectionHeader title="Menu Terbaru" icon={<Sparkles className="h-5 w-5 text-primary" />} />
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {terbaru.map(m => <MenuCard key={m.id} m={m} />)}
-        </div>
-      </section>
-
-      {/* Rekomendasi */}
-      <section>
-        <SectionHeader title="Rekomendasi Untukmu" icon={<TrendingUp className="h-5 w-5 text-success" />} />
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {rekomendasi.map(m => <MenuCard key={m.id} m={m} />)}
-        </div>
-      </section>
-
-      {/* Riwayat singkat */}
-      <section>
-        <SectionHeader title="Riwayat Terakhir" icon={<Clock className="h-5 w-5 text-muted-foreground" />} action="Semua riwayat" actionTo="/app/history" />
-        <div className="mt-4 grid gap-3 md:grid-cols-2">
-          {orderHistory.slice(0, 2).map(o => (
-            <Card key={o.id} className="p-4 flex items-center gap-4">
-              <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary font-display font-bold">
-                {o.tenant.charAt(0)}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="font-semibold truncate">{o.tenant}</div>
-                <div className="text-xs text-muted-foreground">{o.date} · {o.items} item</div>
-              </div>
-              <div className="text-right">
-                <div className="font-display font-bold">{rupiah(o.total)}</div>
-                <Badge variant={o.status === "Selesai" ? "secondary" : "destructive"} className="mt-1 text-[10px]">{o.status}</Badge>
-              </div>
-            </Card>
-          ))}
-        </div>
-      </section>
-    </div>
-  );
-}
-
-function SectionHeader({ title, icon, action, actionTo }: { title: string; icon?: React.ReactNode; action?: string; actionTo?: string }) {
-  return (
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-2">
-        {icon}
-        <h2 className="font-display text-xl font-bold">{title}</h2>
-      </div>
-      {action && (actionTo ? (
-        <Link to={actionTo} className="flex items-center gap-1 text-sm font-medium text-primary hover:underline">
-          {action} <ChevronRight className="h-3 w-3" />
-        </Link>
-      ) : (
-        <button className="flex items-center gap-1 text-sm font-medium text-primary hover:underline">
-          {action} <ChevronRight className="h-3 w-3" />
-        </button>
-      ))}
-    </div>
-  );
-}
-
-function MenuCard({ m }: { m: typeof menus[number] }) {
-  return (
-    <Link to="/app/menu/$id" params={{ id: m.id }}>
-      <Card className="overflow-hidden group cursor-pointer transition hover:-translate-y-1 hover:shadow-glow h-full">
-        <div className="relative aspect-square overflow-hidden">
-          <img src={m.image} alt={m.name} className="h-full w-full object-cover transition group-hover:scale-105" />
-          {m.tags?.[0] && (
-            <Badge className="absolute left-2 top-2 rounded-full bg-background/95 text-foreground border-none">{m.tags[0]}</Badge>
-          )}
-        </div>
-        <div className="p-3">
-          <div className="text-[11px] text-muted-foreground">{m.tenant}</div>
-          <div className="font-display font-semibold truncate">{m.name}</div>
-          <div className="mt-2 flex items-center justify-between">
-            <div className="font-display font-bold text-primary">{rupiah(m.price)}</div>
-            <div className="flex items-center gap-1 text-xs">
-              <Star className="h-3 w-3 fill-warning text-warning" /> {m.rating}
-            </div>
+              </Card>
+            ))}
           </div>
-        </div>
-      </Card>
-    </Link>
+        ) : filtered.length === 0 ? (
+          <Card className="p-16 text-center">
+            <UtensilsCrossed className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+            <p className="text-muted-foreground font-semibold">
+              {search ? `Tidak ada menu "${search}"` : "Belum ada menu tersedia"}
+            </p>
+            <p className="text-sm text-muted-foreground mt-1">
+              {search ? "Coba kata kunci lain." : "Tenant belum menambahkan menu. Coba lagi nanti!"}
+            </p>
+          </Card>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {filtered.map(m => (
+              <Card key={m.id} className={`overflow-hidden group transition hover:shadow-md ${m.is_sold_out || m.stock <= 0 ? "opacity-60" : ""}`}>
+                <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+                  {m.image_url ? (
+                    <img src={m.image_url} alt={m.name} className="h-full w-full object-cover transition group-hover:scale-105" />
+                  ) : (
+                    <div className="h-full w-full flex items-center justify-center text-5xl">
+                      {m.category === "Minuman" ? "🥤" : m.category === "Snack" ? "🍪" : m.category === "Dessert" ? "🍰" : m.category === "Sehat" ? "🥗" : "🍽️"}
+                    </div>
+                  )}
+                  {(m.is_sold_out || m.stock <= 0) && (
+                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                      <Badge className="bg-destructive text-white text-sm px-3 py-1">Sold Out</Badge>
+                    </div>
+                  )}
+                  <Badge className="absolute top-2 left-2 bg-black/50 text-white border-none">{m.category}</Badge>
+                </div>
+                <div className="p-4">
+                  <div className="text-xs text-muted-foreground">{m.seller_name || "Tenant"}</div>
+                  <div className="font-display font-bold truncate mt-0.5">{m.name}</div>
+                  {m.description && (
+                    <div className="text-xs text-muted-foreground mt-1 line-clamp-1">{m.description}</div>
+                  )}
+                  <div className="mt-3 flex items-center justify-between">
+                    <div className="font-display font-bold text-primary text-lg">{rupiah(m.price)}</div>
+                    <Button
+                      size="sm"
+                      className="gap-1.5"
+                      disabled={m.is_sold_out || m.stock <= 0}
+                      onClick={() => handleAddToCart(m)}
+                    >
+                      <ShoppingCart className="h-3.5 w-3.5" />
+                      {m.is_sold_out || m.stock <= 0 ? "Habis" : "Tambah"}
+                    </Button>
+                  </div>
+                  {!m.is_sold_out && m.stock > 0 && m.stock <= 5 && (
+                    <p className="text-xs text-orange-500 mt-1 font-medium">⚠️ Sisa {m.stock} porsi</p>
+                  )}
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
+      </section>
+    </div>
   );
 }
