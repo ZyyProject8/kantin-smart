@@ -1,6 +1,7 @@
-import { createFileRoute, Outlet, Link, useRouterState } from "@tanstack/react-router";
+import { createFileRoute, Outlet, Link, useRouterState, useNavigate } from "@tanstack/react-router";
+import { useAuth } from "./__root";
 import { Logo } from "@/components/logo";
-import { LayoutDashboard, UtensilsCrossed, ClipboardList, Settings, ArrowLeft } from "lucide-react";
+import { LayoutDashboard, UtensilsCrossed, ClipboardList, Settings, ArrowLeft, ShieldCheck } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 
@@ -16,6 +17,32 @@ const items = [
 
 function SellerLayout() {
   const pathname = useRouterState({ select: s => s.location.pathname });
+  const auth = useAuth();
+  const nav = useNavigate();
+
+  if (!auth.user) {
+    nav({ to: "/login" });
+    return null;
+  }
+
+  if (auth.user.role !== "seller") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-surface">
+        <div className="max-w-md text-center p-8">
+          <div className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-destructive/10 text-destructive mb-6">
+            <ShieldCheck className="h-10 w-10" />
+          </div>
+          <h1 className="font-display text-2xl font-bold">Akses Ditolak</h1>
+          <p className="mt-3 text-muted-foreground">Halaman ini hanya dapat diakses oleh Penjual/Tenant. Harap login dengan akun Penjual terlebih dahulu.</p>
+          <div className="mt-6 flex flex-col gap-3">
+            <Link to="/login"><button className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground">Ganti Akun (Login)</button></Link>
+            <Link to="/"><button className="w-full rounded-lg border px-4 py-2.5 text-sm font-medium">Kembali ke Beranda</button></Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-surface">
       <div className="grid md:grid-cols-[240px_1fr]">

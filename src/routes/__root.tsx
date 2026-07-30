@@ -21,8 +21,10 @@ export type User = {
 };
 
 export type CartItem = MenuItem & {
+  cartItemId: string;
   qty: number;
   selectedAddons: string[];
+  selectedVariants?: Record<string, string>;
 };
 
 export interface AuthContext {
@@ -30,7 +32,7 @@ export interface AuthContext {
   login: (user: User) => void;
   logout: () => void;
   cartItems: CartItem[];
-  addToCart: (menu: MenuItem, qty: number, selectedAddons: string[]) => void;
+  addToCart: (menu: MenuItem, qty: number, selectedAddons: string[], selectedVariants?: Record<string, string>) => void;
   removeFromCart: (menuId: string) => void;
   updateQty: (menuId: string, qty: number) => void;
   clearCart: () => void;
@@ -179,21 +181,21 @@ function RootComponent() {
       window.localStorage.removeItem("kantin_cart");
     },
     cartItems,
-    addToCart: (menu, qty, selectedAddons) => {
+    addToCart: (menu, qty, selectedAddons, selectedVariants) => {
       setCartItems((prev) => {
-        const existing = prev.find((item) => item.id === menu.id);
+        const existing = prev.find((item) => item.id === menu.id && JSON.stringify(item.selectedVariants) === JSON.stringify(selectedVariants));
         if (existing) {
           return prev.map((item) =>
-            item.id === menu.id
+            item.cartItemId === existing.cartItemId
               ? { ...item, qty: item.qty + qty, selectedAddons }
               : item,
           );
         }
-        return [...prev, { ...menu, qty, selectedAddons }];
+        return [...prev, { ...menu, cartItemId: crypto.randomUUID(), qty, selectedAddons, selectedVariants }];
       });
     },
-    removeFromCart: (menuId) => setCartItems((prev) => prev.filter((item) => item.id !== menuId)),
-    updateQty: (menuId, qty) => setCartItems((prev) => prev.map((item) => (item.id === menuId ? { ...item, qty } : item))),
+    removeFromCart: (cartItemId) => setCartItems((prev) => prev.filter((item) => item.cartItemId !== cartItemId)),
+    updateQty: (cartItemId, qty) => setCartItems((prev) => prev.map((item) => (item.cartItemId === cartItemId ? { ...item, qty } : item))),
     clearCart: () => setCartItems([]),
   };
 

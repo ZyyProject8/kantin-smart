@@ -65,26 +65,31 @@ function Cart() {
       <div className="mt-6 grid gap-6 md:grid-cols-[1.5fr_1fr]">
         <div className="space-y-3">
           {items.map(i => (
-            <Card key={i.id} className="p-4 flex gap-4">
+            <Card key={i.cartItemId} className="p-4 flex gap-4">
               <img src={i.image} alt={i.name} className="h-20 w-20 rounded-xl object-cover shrink-0" />
               <div className="flex-1 min-w-0">
                 <div className="text-xs text-muted-foreground">{i.tenant}</div>
                 <div className="font-display font-semibold truncate">{i.name}</div>
                 <div className="mt-1 font-display font-bold text-primary">{rupiah(i.price)}</div>
-                {i.selectedAddons.length > 0 && (
+                {i.selectedVariants && Object.keys(i.selectedVariants).length > 0 && (
                   <div className="mt-2 text-xs text-muted-foreground">
+                    Varian: {Object.entries(i.selectedVariants).map(([k, v]) => `${k}: ${v}`).join(", ")}
+                  </div>
+                )}
+                {i.selectedAddons.length > 0 && (
+                  <div className="mt-1 text-xs text-muted-foreground">
                     Tambahan: {menus.find((menu) => menu.id === i.id)?.addons.filter((a) => i.selectedAddons.includes(a.id)).map((a) => a.name).join(", ")}
                   </div>
                 )}
               </div>
               <div className="flex flex-col items-end justify-between">
-                <button onClick={() => auth.removeFromCart(i.id)} className="text-muted-foreground hover:text-destructive">
+                <button onClick={() => auth.removeFromCart(i.cartItemId)} className="text-muted-foreground hover:text-destructive">
                   <Trash2 className="h-4 w-4" />
                 </button>
                 <div className="flex items-center gap-1">
-                  <Button size="icon" variant="outline" className="h-7 w-7" onClick={() => auth.updateQty(i.id, Math.max(1, i.qty - 1))}><Minus className="h-3 w-3" /></Button>
+                  <Button size="icon" variant="outline" className="h-7 w-7" onClick={() => auth.updateQty(i.cartItemId, Math.max(1, i.qty - 1))}><Minus className="h-3 w-3" /></Button>
                   <span className="w-6 text-center text-sm font-semibold">{i.qty}</span>
-                  <Button size="icon" variant="outline" className="h-7 w-7" onClick={() => auth.updateQty(i.id, i.qty + 1)}><Plus className="h-3 w-3" /></Button>
+                  <Button size="icon" variant="outline" className="h-7 w-7" onClick={() => auth.updateQty(i.cartItemId, i.qty + 1)}><Plus className="h-3 w-3" /></Button>
                 </div>
               </div>
             </Card>

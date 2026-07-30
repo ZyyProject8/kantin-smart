@@ -1,10 +1,11 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useAuth } from "./__root";
 import { Logo } from "@/components/logo";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { salesData } from "@/lib/mock-data";
-import { Users, Store, Wallet, ShoppingBag, ArrowUpRight, ArrowLeft } from "lucide-react";
+import { Users, Store, Wallet, ShoppingBag, ArrowUpRight, ArrowLeft, ShieldCheck } from "lucide-react";
 import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, BarChart, Bar } from "recharts";
 
 export const Route = createFileRoute("/admin")({
@@ -27,6 +28,32 @@ const activities = [
 ];
 
 function AdminDash() {
+  const auth = useAuth();
+  const nav = useNavigate();
+
+  if (!auth.user) {
+    nav({ to: "/login" });
+    return null;
+  }
+
+  if (auth.user.role !== "admin") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-surface">
+        <div className="max-w-md text-center p-8">
+          <div className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-destructive/10 text-destructive mb-6">
+            <ShieldCheck className="h-10 w-10" />
+          </div>
+          <h1 className="font-display text-2xl font-bold">Akses Ditolak</h1>
+          <p className="mt-3 text-muted-foreground">Halaman ini hanya dapat diakses oleh Admin. Harap login dengan akun Admin terlebih dahulu.</p>
+          <div className="mt-6 flex flex-col gap-3">
+            <Link to="/login"><button className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground">Ganti Akun (Login)</button></Link>
+            <Link to="/"><button className="w-full rounded-lg border px-4 py-2.5 text-sm font-medium">Kembali ke Beranda</button></Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-surface">
       <header className="glass border-b sticky top-0 z-30">

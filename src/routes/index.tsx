@@ -48,13 +48,13 @@ function Hero() {
       <div className="container-page grid gap-12 py-16 md:grid-cols-2 md:py-24 lg:py-32">
         <div className="flex flex-col justify-center animate-fade-in">
           <Badge variant="secondary" className="mb-5 w-fit gap-1.5 rounded-full px-3 py-1">
-            <Sparkles className="h-3.5 w-3.5 text-primary" /> Baru · v1.0 untuk 2026
+            <Sparkles className="h-3.5 w-3.5 text-primary" /> Baru · Siap Sambut Semester Baru!
           </Badge>
           <h1 className="font-display text-4xl font-extrabold leading-[1.05] md:text-6xl">
-            Kantin sekolah &<br />kampus, <span className="text-gradient">tanpa antri.</span>
+            Jajan di kantin <br />sekolah, <span className="text-gradient">bebas antri.</span>
           </h1>
           <p className="mt-5 max-w-lg text-lg text-muted-foreground">
-            Pesan makanan favorit dari kelas atau meja kerja. Bayar digital, ambil dengan QR — cepat, higienis, dan menyenangkan.
+            Bisa pesan makanan dari kelas, bayar pakai e-wallet, dan ambil cepet pas jam istirahat. Nggak ada lagi cerita telat masuk kelas gara-gara antri kantin!
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link to="/app"><Button size="lg" className="gap-2 shadow-glow">Pesan Sekarang <ArrowRight className="h-4 w-4" /></Button></Link>
@@ -116,9 +116,9 @@ function Hero() {
 }
 
 const steps = [
-  { icon: ShoppingBag, title: "Pilih Menu", desc: "Jelajahi menu dari berbagai tenant favorit di kantinmu." },
-  { icon: Smartphone, title: "Bayar Digital", desc: "Bayar dengan e-wallet, saldo, atau kartu pelajar sekolah." },
-  { icon: QrCode, title: "Ambil dengan QR", desc: "Tunjukkan QR pickup ke tenant, langsung ambil tanpa antri." },
+  { icon: ShoppingBag, title: "Pilih Menu", desc: "Jelajahi menu dari berbagai tenant favorit di kantin sekolahmu." },
+  { icon: Smartphone, title: "Bayar Digital", desc: "Bayar dengan e-wallet favoritmu. Praktis tanpa nunggu kembalian." },
+  { icon: QrCode, title: "Ambil dengan Cepat", desc: "Tunjukkan pesananmu ke ibu kantin, langsung ambil tanpa antri panjang." },
 ];
 
 function HowItWorks() {
@@ -197,7 +197,7 @@ function Preview() {
                 <div className="font-display text-lg font-bold">Mie Ayam Bakso</div>
                 <div className="mt-2 flex items-center justify-between">
                   <div className="font-display font-bold text-primary">Rp15.000</div>
-                  <Button size="sm" className="h-8">+ Pesan</Button>
+                  <Link to="/app"><Button size="sm" className="h-8">+ Pesan</Button></Link>
                 </div>
                 <div className="mt-4 h-2 rounded-full bg-muted">
                   <div className="h-full w-2/3 rounded-full gradient-primary" />

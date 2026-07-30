@@ -6,6 +6,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import { ArrowLeft, Star, Clock, AlertCircle, Plus, Minus, ShoppingBag } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -27,6 +29,7 @@ function Detail() {
   const m = menus.find(x => x.id === id) ?? menus[0];
   const [qty, setQty] = useState(1);
   const [selected, setSelected] = useState<string[]>([]);
+  const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
   const nav = useNavigate();
   const auth = useAuth();
 
@@ -80,6 +83,31 @@ function Detail() {
             ))}
           </div>
 
+          {m.variants && m.variants.length > 0 && (
+            <>
+              <Separator className="my-6" />
+              {m.variants.map((variant) => (
+                <div key={variant.id} className="mb-6">
+                  <h3 className="font-display font-bold flex items-center gap-2">
+                    {variant.name} {variant.required && <span className="text-destructive text-xs font-normal">(Wajib)</span>}
+                  </h3>
+                  <RadioGroup 
+                    className="mt-3 grid gap-3 sm:grid-cols-2"
+                    value={selectedVariants[variant.name]}
+                    onValueChange={(val) => setSelectedVariants(prev => ({ ...prev, [variant.name]: val }))}
+                  >
+                    {variant.options.map(opt => (
+                      <Label key={opt} className="cursor-pointer flex items-center gap-3 rounded-xl border p-3 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5">
+                        <RadioGroupItem value={opt} />
+                        <span className="text-sm font-medium">{opt}</span>
+                      </Label>
+                    ))}
+                  </RadioGroup>
+                </div>
+              ))}
+            </>
+          )}
+
           <Separator className="my-6" />
 
           <div className="flex items-center justify-between">
@@ -100,7 +128,14 @@ function Detail() {
               size="lg"
               className="gap-2 flex-1 max-w-xs"
               onClick={() => {
-                auth.addToCart(m, qty, selected);
+                if (m.variants) {
+                  const missing = m.variants.filter(v => v.required && !selectedVariants[v.name]);
+                  if (missing.length > 0) {
+                    toast.error(`Harap pilih ${missing.map(m => m.name).join(", ")} terlebih dahulu.`);
+                    return;
+                  }
+                }
+                auth.addToCart(m, qty, selected, selectedVariants);
                 toast.success("Ditambahkan ke keranjang");
                 nav({ to: "/app/cart" });
               }}

@@ -26,7 +26,7 @@ function Checkout() {
   const nav = useNavigate();
   const auth = useAuth();
   const [time, setTime] = useState("12:15");
-  const [paymentMethod, setPaymentMethod] = useState("ewallet");
+  const [paymentMethod, setPaymentMethod] = useState("E-Wallet (Gopay/OVO/Dana)");
 
   const items = auth.cartItems;
   const subtotal = items.reduce((s, i) => {
@@ -42,7 +42,7 @@ function Checkout() {
       return;
     }
     auth.clearCart();
-    toast.success(`Pesanan dikonfirmasi (${paymentMethod === "ewallet" ? "E-Wallet" : "Tunai"})`);
+    toast.success(`Pesanan dikonfirmasi (${paymentMethod})`);
     nav({ to: "/app/tracking/$id", params: { id: "k2410" } });
   };
 
@@ -124,8 +124,8 @@ function Checkout() {
 
           <Card className="p-5">
             <h3 className="font-display font-bold flex items-center gap-2"><Wallet className="h-4 w-4 text-primary" /> Metode Pembayaran</h3>
-            <RadioGroup defaultValue="ewallet" className="mt-4 space-y-2">
-              {["Saldo Kartu Pelajar", "E-Wallet (Gopay/OVO)", "Tunai saat pengambilan"].map((m, i) => (
+            <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="mt-4 space-y-2">
+              {["E-Wallet (Gopay/OVO/Dana)", "Tunai"].map((m, i) => (
                 <Label key={i} className="cursor-pointer flex items-center gap-3 rounded-xl border p-3 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5">
                   <RadioGroupItem value={m} />
                   <span className="text-sm font-medium">{m}</span>

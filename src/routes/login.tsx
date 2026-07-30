@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Logo } from "@/components/logo";
-import { ArrowRight, Mail, Lock } from "lucide-react";
+import { ArrowRight, Mail, Lock, GraduationCap, Store, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/login")({
@@ -21,11 +21,32 @@ export const Route = createFileRoute("/login")({
   component: Login,
 });
 
+type Role = "siswa" | "seller" | "admin";
+
+const ROLE_OPTIONS: { value: Role; label: string; desc: string; icon: React.ElementType; color: string }[] = [
+  { value: "siswa", label: "Siswa / Pelajar", desc: "Pesan makanan di kantin", icon: GraduationCap, color: "text-blue-500" },
+  { value: "seller", label: "Penjual / Tenant", desc: "Kelola menu & pesanan", icon: Store, color: "text-emerald-500" },
+  { value: "admin", label: "Admin Sekolah", desc: "Pantau seluruh platform", icon: ShieldCheck, color: "text-orange-500" },
+];
+
+const ROLE_MOCK: Record<Role, { name: string; email: string }> = {
+  siswa: { name: "Dinda Puspita", email: "dinda@sekolah.id" },
+  seller: { name: "Bu Sri (Warung Bu Sri)", email: "sri@kantin.id" },
+  admin: { name: "Admin Sekolah", email: "admin@sekolah.id" },
+};
+
 function Login() {
   const nav = useNavigate();
   const auth = useAuth();
+  const [role, setRole] = useState<Role>("siswa");
   const [email, setEmail] = useState("dinda@sekolah.id");
   const [password, setPassword] = useState("");
+
+  const handleRoleChange = (r: Role) => {
+    setRole(r);
+    setEmail(ROLE_MOCK[r].email);
+    setPassword("");
+  };
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -34,35 +55,85 @@ function Login() {
       return;
     }
 
-    auth.login({ name: "Dinda Puspita", email, role: "Siswa" });
-    toast.success("Berhasil masuk!");
-    nav({ to: "/app" });
+    const mock = ROLE_MOCK[role];
+    auth.login({ name: mock.name, email, role });
+    toast.success(`Berhasil masuk sebagai ${ROLE_OPTIONS.find(r => r.value === role)?.label}!`);
+
+    if (role === "admin") nav({ to: "/admin" });
+    else if (role === "seller") nav({ to: "/seller" });
+    else nav({ to: "/app" });
   };
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
+      {/* Left panel */}
       <div className="hidden lg:flex flex-col justify-between p-10 gradient-primary text-primary-foreground relative overflow-hidden">
         <div className="absolute -right-32 -top-32 h-96 w-96 rounded-full bg-white/10 blur-3xl" />
+        <div className="absolute -left-20 -bottom-20 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
         <Logo className="[&_span]:text-primary-foreground [&_.gradient-primary]:bg-white/20" />
         <div className="relative max-w-md">
-          <h2 className="font-display text-4xl font-extrabold leading-tight">Selamat datang kembali.</h2>
-          <p className="mt-4 opacity-90">Menu favoritmu, tenant kesayangan, dan pesanan cepat — semua menunggumu.</p>
+          <h2 className="font-display text-4xl font-extrabold leading-tight">
+            Selamat datang kembali.
+          </h2>
+          <p className="mt-4 opacity-90">
+            Menu favoritmu, tenant kesayangan, dan pesanan cepat — semua menunggumu.
+          </p>
+          <div className="mt-8 space-y-3">
+            {ROLE_OPTIONS.map(r => (
+              <div key={r.value} className="flex items-center gap-3 rounded-xl bg-white/10 px-4 py-3">
+                <r.icon className="h-5 w-5 shrink-0" />
+                <div>
+                  <div className="text-sm font-semibold">{r.label}</div>
+                  <div className="text-xs opacity-75">{r.desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
         <div className="text-xs opacity-70">© 2026 Kantin Pintar</div>
       </div>
 
+      {/* Right panel */}
       <div className="flex flex-col p-6 md:p-10">
         <div className="lg:hidden"><Logo /></div>
         <div className="flex-1 grid place-items-center">
           <Card className="w-full max-w-md p-8 shadow-soft border-none">
             <h1 className="font-display text-3xl font-bold">Masuk</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Gunakan akun Anda untuk melanjutkan.</p>
-            <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
+            <p className="mt-1 text-sm text-muted-foreground">Pilih peran dan gunakan akun Anda.</p>
+
+            {/* Role Selection */}
+            <div className="mt-6 grid grid-cols-3 gap-2">
+              {ROLE_OPTIONS.map(r => (
+                <button
+                  key={r.value}
+                  type="button"
+                  id={`role-${r.value}`}
+                  onClick={() => handleRoleChange(r.value)}
+                  className={`flex flex-col items-center gap-1.5 rounded-xl border p-3 text-center text-xs font-medium transition-all ${
+                    role === r.value
+                      ? "border-primary bg-primary/5 text-primary"
+                      : "text-muted-foreground hover:border-border hover:text-foreground"
+                  }`}
+                >
+                  <r.icon className={`h-5 w-5 ${role === r.value ? "text-primary" : r.color}`} />
+                  {r.label}
+                </button>
+              ))}
+            </div>
+
+            <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
               <div className="space-y-1.5">
                 <Label htmlFor="email">Email</Label>
                 <div className="relative">
                   <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="nama@sekolah.id" className="pl-9 h-11" />
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="nama@sekolah.id"
+                    className="pl-9 h-11"
+                  />
                 </div>
               </div>
               <div className="space-y-1.5">
@@ -72,17 +143,20 @@ function Login() {
                 </div>
                 <div className="relative">
                   <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Kata sandi" className="pl-9 h-11" />
+                  <Input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Masukkan kata sandi"
+                    className="pl-9 h-11"
+                  />
                 </div>
               </div>
-              <Button type="submit" size="lg" className="w-full gap-2 h-11">Masuk <ArrowRight className="h-4 w-4" /></Button>
+              <Button id="login-submit" type="submit" size="lg" className="w-full gap-2 h-11">
+                Masuk sebagai {ROLE_OPTIONS.find(r => r.value === role)?.label} <ArrowRight className="h-4 w-4" />
+              </Button>
             </form>
-            <div className="my-6 flex items-center gap-3">
-              <div className="h-px flex-1 bg-border" />
-              <span className="text-xs text-muted-foreground">atau</span>
-              <div className="h-px flex-1 bg-border" />
-            </div>
-            <Button variant="outline" size="lg" className="w-full h-11">Masuk dengan Google</Button>
             <p className="mt-6 text-center text-sm text-muted-foreground">
               Belum punya akun? <Link to="/register" className="font-semibold text-primary hover:underline">Daftar</Link>
             </p>

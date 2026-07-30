@@ -12,6 +12,7 @@ export type MenuItem = {
   prepTime: string;
   allergens: string[];
   addons: { id: string; name: string; price: number }[];
+  variants?: { id: string; name: string; options: string[]; required: boolean }[];
   tags?: string[];
 };
 
@@ -36,6 +37,9 @@ export const menus: MenuItem[] = [
       { id: "a1", name: "Ekstra Sambal", price: 2000 },
       { id: "a2", name: "Telur Ceplok", price: 4000 },
       { id: "a3", name: "Es Teh Manis", price: 4000 },
+    ],
+    variants: [
+      { id: "v1", name: "Level Pedas", options: ["Tidak Pedas", "Sedang", "Pedas", "Sangat Pedas"], required: true }
     ],
     tags: ["Populer"],
   },
