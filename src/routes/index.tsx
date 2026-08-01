@@ -13,9 +13,9 @@ import {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Kantin Pintar — Pesan Makan Kantin Tanpa Antri" },
+      { title: "Smart Kantin — Pesan Makan Kantin Tanpa Antri" },
       { name: "description", content: "Platform pemesanan makanan kantin untuk sekolah, kampus, dan perkantoran. Pesan dari kelas, ambil tanpa antri dengan QR pickup." },
-      { property: "og:title", content: "Kantin Pintar — Pesan Makan Kantin Tanpa Antri" },
+      { property: "og:title", content: "Smart Kantin — Pesan Makan Kantin Tanpa Antri" },
       { property: "og:description", content: "Platform pemesanan makanan kantin untuk sekolah, kampus, dan perkantoran." },
     ],
   }),
@@ -50,11 +50,11 @@ function Hero() {
           <Badge variant="secondary" className="mb-5 w-fit gap-1.5 rounded-full px-3 py-1">
             <Sparkles className="h-3.5 w-3.5 text-primary" /> Baru · Siap Sambut Semester Baru!
           </Badge>
-          <h1 className="font-display text-4xl font-extrabold leading-[1.05] md:text-6xl">
-            Jajan di kantin <br />sekolah, <span className="text-gradient">bebas antri.</span>
+          <h1 className="font-display text-4xl font-extrabold tracking-tight sm:text-6xl lg:text-7xl">
+            Jajan di kantin sekolah, <span className="text-primary">bebas antri.</span>
           </h1>
-          <p className="mt-5 max-w-lg text-lg text-muted-foreground">
-            Bisa pesan makanan dari kelas, bayar pakai e-wallet, dan ambil cepet pas jam istirahat. Nggak ada lagi cerita telat masuk kelas gara-gara antri kantin!
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground sm:text-xl">
+            Tinggal Klik, Jajan Langsung Meluncur! Pesan makanan favoritmu dari mana aja, bayar praktis pakai metode pilihanmu, dan langsung ambil tanpa perlu antri panjang. Bye-bye perut keroncongan!
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link to="/app"><Button size="lg" className="gap-2 shadow-glow">Pesan Sekarang <ArrowRight className="h-4 w-4" /></Button></Link>
@@ -159,10 +159,12 @@ function Features() {
     <section id="fitur" className="border-y bg-surface py-20 md:py-28">
       <div className="container-page">
         <div className="grid gap-12 md:grid-cols-[1fr_2fr]">
-          <div>
-            <Badge variant="secondary" className="mb-4 rounded-full">Keunggulan</Badge>
-            <h2 className="font-display text-3xl font-bold md:text-4xl">Dirancang untuk kantin abad 21.</h2>
-            <p className="mt-3 text-muted-foreground">
+          <div className="text-center md:text-left">
+            <Badge className="bg-primary/10 text-primary border-none mb-4 px-4 py-1.5 text-sm">Keunggulan</Badge>
+            <h2 className="font-display text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl">
+              Kantin Kekinian, Khusus Buat Kamu yang Anti Ribet!
+            </h2>
+            <p className="mt-4 text-lg text-muted-foreground leading-relaxed">
               Fokus pada pengalaman — bukan sekadar kasir digital. Semua orang, dari siswa sampai admin, mendapat interface yang jelas.
             </p>
           </div>
@@ -290,7 +292,7 @@ function CTA() {
         <div className="relative flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
           <div>
             <h2 className="font-display text-3xl font-extrabold md:text-4xl">Siap pesan makan hari ini?</h2>
-            <p className="mt-2 opacity-90 max-w-lg">Bergabung dengan ribuan pengguna dan puluhan tenant yang sudah beralih ke Kantin Pintar.</p>
+            <p className="mt-2 opacity-90 max-w-lg">Bergabung dengan ribuan pengguna dan puluhan tenant yang sudah beralih ke Smart Kantin.</p>
           </div>
           <Link to="/register">
             <Button size="lg" variant="secondary" className="gap-2">Mulai Sekarang <ArrowRight className="h-4 w-4" /></Button>
@@ -308,7 +310,7 @@ function Footer() {
         <div className="md:col-span-2">
           <Logo />
           <p className="mt-4 max-w-sm text-sm text-muted-foreground">
-            Kantin Pintar — Platform digital pemesanan makanan kantin untuk sekolah, kampus, dan perkantoran modern.
+            Smart Kantin — Platform digital pemesanan makanan kantin untuk sekolah, kampus, dan perkantoran modern.
           </p>
         </div>
         <div>
@@ -331,7 +333,7 @@ function Footer() {
         </div>
       </div>
       <div className="border-t py-6 text-center text-xs text-muted-foreground">
-        © 2026 Kantin Pintar. Dibuat dengan sepenuh hati untuk kantin Indonesia.
+        © 2026 Smart Kantin. Dibuat dengan sepenuh hati untuk kantin Indonesia.
       </div>
     </footer>
   );

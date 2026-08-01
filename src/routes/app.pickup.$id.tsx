@@ -6,9 +6,9 @@ import { ArrowLeft } from "lucide-react";
 export const Route = createFileRoute("/app/pickup/$id")({
   head: () => ({
     meta: [
-      { title: "QR Pickup — Kantin Pintar" },
+      { title: "QR Pickup — Smart Kantin" },
       { name: "description", content: "Tunjukkan QR ini ke tenant untuk mengambil pesanan." },
-      { property: "og:title", content: "QR Pickup — Kantin Pintar" },
+      { property: "og:title", content: "QR Pickup — Smart Kantin" },
       { property: "og:description", content: "Tunjukkan QR ini ke tenant untuk mengambil pesanan." },
     ],
   }),

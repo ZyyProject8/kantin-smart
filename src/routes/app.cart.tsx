@@ -11,9 +11,9 @@ import { useState } from "react";
 export const Route = createFileRoute("/app/cart")({
   head: () => ({
     meta: [
-      { title: "Keranjang — Kantin Pintar" },
+      { title: "Keranjang — Smart Kantin" },
       { name: "description", content: "Ringkasan pesanan Anda." },
-      { property: "og:title", content: "Keranjang — Kantin Pintar" },
+      { property: "og:title", content: "Keranjang — Smart Kantin" },
       { property: "og:description", content: "Ringkasan pesanan Anda." },
     ],
   }),
@@ -30,8 +30,7 @@ function Cart() {
     const addonTotal = menu ? menu.addons.filter((a) => i.selectedAddons.includes(a.id)).reduce((sum, addon) => sum + addon.price, 0) : 0;
     return s + (i.price + addonTotal) * i.qty;
   }, 0);
-  const service = 1000;
-  const total = subtotal + service;
+  const total = subtotal;
 
   if (!auth.user) {
     return (
@@ -104,9 +103,6 @@ function Cart() {
         <Card className="p-5 h-fit sticky top-24">
           <h3 className="font-display font-bold">Ringkasan</h3>
           <div className="mt-4 space-y-2 text-sm">
-            <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{rupiah(subtotal)}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">Biaya layanan</span><span>{rupiah(service)}</span></div>
-            <Separator className="my-3" />
             <div className="flex justify-between font-display text-lg font-bold"><span>Total</span><span className="text-primary">{rupiah(total)}</span></div>
           </div>
           <Link to="/app/checkout"><Button size="lg" className="w-full mt-6">Checkout</Button></Link>

@@ -12,10 +12,10 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
-      { title: "Masuk — Kantin Pintar" },
-      { name: "description", content: "Masuk ke akun Kantin Pintar Anda." },
-      { property: "og:title", content: "Masuk — Kantin Pintar" },
-      { property: "og:description", content: "Masuk ke akun Kantin Pintar Anda." },
+      { title: "Masuk — Smart Kantin" },
+      { name: "description", content: "Masuk ke akun Smart Kantin Anda." },
+      { property: "og:title", content: "Masuk — Smart Kantin" },
+      { property: "og:description", content: "Masuk ke akun Smart Kantin Anda." },
     ],
   }),
   component: Login,
@@ -78,7 +78,7 @@ function Login() {
             Menu favoritmu, tenant kesayangan, dan pesanan cepat — semua menunggumu.
           </p>
         </div>
-        <div className="text-xs opacity-70">© 2026 Kantin Pintar</div>
+        <div className="text-xs opacity-70">© 2026 Smart Kantin</div>
       </div>
 
       {/* Right panel */}

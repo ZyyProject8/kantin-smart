@@ -4,7 +4,7 @@ import { Logo } from "@/components/logo";
 import { Home, Search, ShoppingBag, Clock, User, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export const Route = createFileRoute("/app")({
   component: AppLayout,
@@ -57,8 +57,9 @@ function AppLayout() {
             </Link>
             <Link to="/app/profile">
               <Avatar className="h-9 w-9">
-                <AvatarImage src="https://i.pravatar.cc/100?img=47" />
-                <AvatarFallback>DP</AvatarFallback>
+                <AvatarFallback className="text-sm font-bold">
+                  {auth.user?.name?.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2) || "?"}
+                </AvatarFallback>
               </Avatar>
             </Link>
           </div>

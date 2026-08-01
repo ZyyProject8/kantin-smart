@@ -1,5 +1,5 @@
 /**
- * Tipe data kontrak API antara frontend Kantin Pintar dan backend Laravel.
+ * Tipe data kontrak API antara frontend Smart Kantin dan backend Laravel.
  *
  * Tipe ini disesuaikan dengan resource yang umum dihasilkan Laravel/Eloquent.
  * Kamu bisa menyesuaikan nama field sesuai response JSON Laravel-mu.

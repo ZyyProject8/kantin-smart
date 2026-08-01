@@ -8,9 +8,9 @@ import { LineChart, Line, ResponsiveContainer, XAxis, Tooltip, CartesianGrid } f
 export const Route = createFileRoute("/seller/")({
   head: () => ({
     meta: [
-      { title: "Dashboard Penjual — Kantin Pintar" },
+      { title: "Dashboard Penjual — Smart Kantin" },
       { name: "description", content: "Statistik penjualan tenant Anda." },
-      { property: "og:title", content: "Dashboard Penjual — Kantin Pintar" },
+      { property: "og:title", content: "Dashboard Penjual — Smart Kantin" },
       { property: "og:description", content: "Statistik penjualan tenant Anda." },
     ],
   }),

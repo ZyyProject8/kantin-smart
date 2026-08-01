@@ -8,9 +8,9 @@ import { Receipt } from "lucide-react";
 export const Route = createFileRoute("/app/history")({
   head: () => ({
     meta: [
-      { title: "Riwayat Pesanan — Kantin Pintar" },
+      { title: "Riwayat Pesanan — Smart Kantin" },
       { name: "description", content: "Lihat semua riwayat pemesanan Anda." },
-      { property: "og:title", content: "Riwayat Pesanan — Kantin Pintar" },
+      { property: "og:title", content: "Riwayat Pesanan — Smart Kantin" },
       { property: "og:description", content: "Lihat semua riwayat pemesanan Anda." },
     ],
   }),

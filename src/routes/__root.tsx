@@ -115,10 +115,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Kantin Pintar — Pesan Makan Kantin Tanpa Antri" },
+      { title: "Smart Kantin — Pesan Makan Kantin Tanpa Antri" },
       { name: "description", content: "Platform digital pemesanan makanan kantin sekolah, kampus, dan perkantoran. Cepat, praktis, tanpa antri." },
-      { name: "author", content: "Kantin Pintar" },
-      { property: "og:title", content: "Kantin Pintar — Pesan Makan Kantin Tanpa Antri" },
+      { name: "author", content: "Smart Kantin" },
+      { property: "og:title", content: "Smart Kantin — Pesan Makan Kantin Tanpa Antri" },
       { property: "og:description", content: "Platform digital pemesanan makanan kantin sekolah, kampus, dan perkantoran." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

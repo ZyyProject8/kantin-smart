@@ -8,7 +8,7 @@ export function Logo({ className = "" }: { className?: string }) {
         <UtensilsCrossed className="h-5 w-5" />
       </div>
       <span className="font-display text-lg font-bold tracking-tight">
-        Kantin<span className="text-primary">Pintar</span>
+        Smart<span className="text-primary">Kantin</span>
       </span>
     </Link>
   );

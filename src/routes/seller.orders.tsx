@@ -10,9 +10,9 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/seller/orders")({
   head: () => ({
     meta: [
-      { title: "Pesanan Masuk — Kantin Pintar" },
+      { title: "Pesanan Masuk — Smart Kantin" },
       { name: "description", content: "Kitchen display untuk mengelola pesanan tenant." },
-      { property: "og:title", content: "Pesanan Masuk — Kantin Pintar" },
+      { property: "og:title", content: "Pesanan Masuk — Smart Kantin" },
       { property: "og:description", content: "Kitchen display untuk mengelola pesanan tenant." },
     ],
   }),

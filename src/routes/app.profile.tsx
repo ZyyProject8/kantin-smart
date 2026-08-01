@@ -1,17 +1,18 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useAuth } from "./__root";
 import { Card } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { Bell, Moon, ShieldCheck, LogOut, ChevronRight, Wallet, HelpCircle } from "lucide-react";
+import { Bell, Moon, ShieldCheck, LogOut, ChevronRight, HelpCircle, User } from "lucide-react";
 
 export const Route = createFileRoute("/app/profile")({
   head: () => ({
     meta: [
-      { title: "Profil — Kantin Pintar" },
+      { title: "Profil — Smart Kantin" },
       { name: "description", content: "Kelola profil dan preferensi Anda." },
-      { property: "og:title", content: "Profil — Kantin Pintar" },
+      { property: "og:title", content: "Profil — Smart Kantin" },
       { property: "og:description", content: "Kelola profil dan preferensi Anda." },
     ],
   }),
@@ -19,26 +20,35 @@ export const Route = createFileRoute("/app/profile")({
 });
 
 function Profile() {
+  const auth = useAuth();
+  const nav = useNavigate();
+  const user = auth.user;
+  const initials = user?.name?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "?";
+
+  const handleLogout = () => {
+    auth.logout();
+    nav({ to: "/" });
+  };
+
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <Card className="p-6 flex items-center gap-4">
         <Avatar className="h-16 w-16">
-          <AvatarImage src="https://i.pravatar.cc/100?img=47" />
-          <AvatarFallback>DP</AvatarFallback>
+          <AvatarFallback className="text-xl font-bold">{initials}</AvatarFallback>
         </Avatar>
         <div className="flex-1 min-w-0">
-          <h2 className="font-display text-xl font-bold truncate">Dinda Puspita</h2>
-          <p className="text-sm text-muted-foreground truncate">dinda@sekolah.id</p>
-          <p className="text-xs text-muted-foreground">+62 812 3456 7890</p>
+          <h2 className="font-display text-xl font-bold truncate">{user?.name || "Pengguna"}</h2>
+          <p className="text-sm text-muted-foreground truncate">{user?.email || "-"}</p>
+          <p className="text-xs text-muted-foreground capitalize">{user?.role || "-"}</p>
         </div>
         <Button variant="outline" size="sm">Edit</Button>
       </Card>
 
       <Card className="p-4">
         <h3 className="px-2 pb-2 text-xs uppercase tracking-wider text-muted-foreground">Akun</h3>
-        <Row icon={Wallet} label="Saldo Kartu Pelajar" value="Rp125.000" />
+        <Row icon={User} label="Akun & Keamanan" />
         <Separator />
-        <Row icon={ShieldCheck} label="Keamanan" />
+        <Row icon={ShieldCheck} label="Privasi" />
         <Separator />
         <Row icon={HelpCircle} label="Bantuan" />
       </Card>
@@ -50,9 +60,9 @@ function Profile() {
         <ToggleRow icon={Moon} label="Tema gelap" />
       </Card>
 
-      <Link to="/">
-        <Button variant="outline" className="w-full gap-2 text-destructive"><LogOut className="h-4 w-4" /> Keluar</Button>
-      </Link>
+      <Button variant="outline" className="w-full gap-2 text-destructive" onClick={handleLogout}>
+        <LogOut className="h-4 w-4" /> Keluar
+      </Button>
     </div>
   );
 }

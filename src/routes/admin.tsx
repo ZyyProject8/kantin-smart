@@ -19,10 +19,10 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/admin")({
   head: () => ({
     meta: [
-      { title: "Dashboard Admin — Kantin Pintar" },
-      { name: "description", content: "Ringkasan operasional platform Kantin Pintar." },
-      { property: "og:title", content: "Dashboard Admin — Kantin Pintar" },
-      { property: "og:description", content: "Ringkasan operasional platform Kantin Pintar." },
+      { title: "Dashboard Admin — Smart Kantin" },
+      { name: "description", content: "Ringkasan operasional platform Smart Kantin." },
+      { property: "og:title", content: "Dashboard Admin — Smart Kantin" },
+      { property: "og:description", content: "Ringkasan operasional platform Smart Kantin." },
     ],
   }),
   component: AdminDash,

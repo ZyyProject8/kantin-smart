@@ -12,9 +12,9 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/app/")({
   head: () => ({
     meta: [
-      { title: "Beranda — Kantin Pintar" },
+      { title: "Beranda — Smart Kantin" },
       { name: "description", content: "Menu populer, tenant favorit, dan rekomendasi untukmu." },
-      { property: "og:title", content: "Beranda — Kantin Pintar" },
+      { property: "og:title", content: "Beranda — Smart Kantin" },
       { property: "og:description", content: "Menu populer, tenant favorit, dan rekomendasi untukmu." },
     ],
   }),
@@ -112,25 +112,7 @@ function BuyerHome() {
         </div>
       </section>
 
-      {/* Promo banner */}
-      <section className="relative overflow-hidden rounded-3xl gradient-primary p-6 md:p-10 text-primary-foreground">
-        <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-        <div className="relative grid gap-4 md:grid-cols-[2fr_1fr] items-center">
-          <div>
-            <Badge className="bg-white/20 text-primary-foreground border-none rounded-full mb-3">
-              <Sparkles className="h-3 w-3 mr-1" /> Promo Hari Ini
-            </Badge>
-            <h2 className="font-display text-2xl md:text-4xl font-extrabold leading-tight">
-              Diskon 20% <br />semua menu minuman!
-            </h2>
-            <p className="mt-2 opacity-90 text-sm">Berlaku hari ini hingga pukul 17:00.</p>
-            <Button variant="secondary" className="mt-4">Ambil Promo</Button>
-          </div>
-          <div className="hidden md:block text-8xl text-center">🥤</div>
-        </div>
-      </section>
-
-      {/* Tab filter */}
+      {/* Categories */}
       <section className="space-y-6">
         <div className="flex items-center gap-2">
           <button

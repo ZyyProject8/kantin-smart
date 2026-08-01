@@ -13,9 +13,9 @@ import { useState } from "react";
 export const Route = createFileRoute("/app/checkout")({
   head: () => ({
     meta: [
-      { title: "Checkout — Kantin Pintar" },
+      { title: "Checkout — Smart Kantin" },
       { name: "description", content: "Konfirmasi pesanan Anda." },
-      { property: "og:title", content: "Checkout — Kantin Pintar" },
+      { property: "og:title", content: "Checkout — Smart Kantin" },
       { property: "og:description", content: "Konfirmasi pesanan Anda." },
     ],
   }),
@@ -34,7 +34,7 @@ function Checkout() {
     const addonTotal = menu ? menu.addons.filter((a) => i.selectedAddons.includes(a.id)).reduce((sum, addon) => sum + addon.price, 0) : 0;
     return s + (i.price + addonTotal) * i.qty;
   }, 0);
-  const total = subtotal + 1000;
+  const total = subtotal;
 
   const handleConfirm = () => {
     if (!items.length) {
@@ -125,7 +125,7 @@ function Checkout() {
           <Card className="p-5">
             <h3 className="font-display font-bold flex items-center gap-2"><Wallet className="h-4 w-4 text-primary" /> Metode Pembayaran</h3>
             <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="mt-4 space-y-2">
-              {["E-Wallet (Gopay/OVO/Dana)", "Tunai"].map((m, i) => (
+              {["QRIS", "Tunai"].map((m, i) => (
                 <Label key={i} className="cursor-pointer flex items-center gap-3 rounded-xl border p-3 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5">
                   <RadioGroupItem value={m} />
                   <span className="text-sm font-medium">{m}</span>
@@ -138,9 +138,6 @@ function Checkout() {
         <Card className="p-5 h-fit sticky top-24">
           <h3 className="font-display font-bold">Total Bayar</h3>
           <div className="mt-4 space-y-2 text-sm">
-            <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{rupiah(subtotal)}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">Biaya layanan</span><span>{rupiah(1000)}</span></div>
-            <Separator className="my-3" />
             <div className="flex justify-between font-display text-xl font-extrabold"><span>Total</span><span className="text-primary">{rupiah(total)}</span></div>
           </div>
           <Button size="lg" className="w-full mt-6" onClick={handleConfirm}>

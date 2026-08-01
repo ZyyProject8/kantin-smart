@@ -13,10 +13,10 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/register")({
   head: () => ({
     meta: [
-      { title: "Daftar — Kantin Pintar" },
-      { name: "description", content: "Buat akun Kantin Pintar dalam 30 detik." },
-      { property: "og:title", content: "Daftar — Kantin Pintar" },
-      { property: "og:description", content: "Buat akun Kantin Pintar dalam 30 detik." },
+      { title: "Daftar — Smart Kantin" },
+      { name: "description", content: "Buat akun Smart Kantin dalam 30 detik." },
+      { property: "og:title", content: "Daftar — Smart Kantin" },
+      { property: "og:description", content: "Buat akun Smart Kantin dalam 30 detik." },
     ],
   }),
   component: Register,
@@ -117,7 +117,7 @@ function Register() {
           <h2 className="font-display text-4xl font-extrabold leading-tight">Bergabunglah dengan 12.000+ pengguna.</h2>
           <p className="mt-4 opacity-90">Kantin sekolah dan kampus se-Indonesia mempercayakan alur pemesanan mereka pada kami.</p>
         </div>
-        <div className="text-xs opacity-70">© 2026 Kantin Pintar</div>
+        <div className="text-xs opacity-70">© 2026 Smart Kantin</div>
       </div>
     </div>
   );

@@ -15,9 +15,9 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/app/menu/$id")({
   head: ({ params }) => ({
     meta: [
-      { title: `Detail Menu — Kantin Pintar` },
+      { title: `Detail Menu — Smart Kantin` },
       { name: "description", content: "Detail menu, harga, rating, dan pilihan tambahan." },
-      { property: "og:title", content: `Detail Menu — Kantin Pintar` },
+      { property: "og:title", content: `Detail Menu — Smart Kantin` },
       { property: "og:description", content: "Detail menu, harga, rating, dan pilihan tambahan." },
     ],
   }),
