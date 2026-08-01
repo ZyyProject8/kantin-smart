@@ -80,7 +80,7 @@ function Hero() {
           <div className="absolute -inset-8 -z-10 rounded-[3rem] gradient-primary opacity-10 blur-3xl" />
           <div className="grid grid-cols-6 grid-rows-6 gap-4 h-[520px]">
             <Card className="col-span-4 row-span-4 overflow-hidden p-0 shadow-glow">
-              <img src="/image/nutrisari.jpg" alt="menu" className="h-full w-full object-cover" />
+              <img src="/image/risol.jpg" alt="menu" className="h-full w-full object-cover" />
             </Card>
             <Card className="col-span-2 row-span-2 flex flex-col justify-between p-4">
               <ScanLine className="h-6 w-6 text-primary" />
@@ -97,7 +97,7 @@ function Hero() {
               </div>
             </Card>
             <Card className="col-span-2 row-span-2 overflow-hidden p-0">
-              <img src="https://images.unsplash.com/photo-1461023058943-07fcbe16d735?auto=format&fit=crop&w=400&q=80" alt="kopi" className="h-full w-full object-cover" />
+              <img src="/image/nutrisari.jpg" alt="minuman" className="h-full w-full object-cover" />
             </Card>
             <Card className="col-span-4 row-span-2 flex items-center gap-4 p-4">
               <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-success/15 text-success">
@@ -117,8 +117,8 @@ function Hero() {
 
 const steps = [
   { icon: ShoppingBag, title: "Pilih Menu", desc: "Jelajahi menu dari berbagai tenant favorit di kantin sekolahmu." },
-  { icon: Smartphone, title: "Bayar Digital", desc: "Bayar dengan e-wallet favoritmu. Praktis tanpa nunggu kembalian." },
-  { icon: QrCode, title: "Ambil dengan Cepat", desc: "Tunjukkan pesananmu ke ibu kantin, langsung ambil tanpa antri panjang." },
+  { icon: QrCode, title: "Pembayaran Mudah", desc: "Pilih metode pembayaran yang kamu mau, bisa via QRIS atau bayar Tunai di kasir." },
+  { icon: Smartphone, title: "Ambil Pesanan", desc: "Tunggu notifikasi pesanan siap, lalu sebutkan nama pesananmu ke tenant untuk mengambil makanan dengan tertib." },
 ];
 
 function HowItWorks() {
