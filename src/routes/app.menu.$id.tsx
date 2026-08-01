@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "./__root";
-import { menus, rupiah } from "@/lib/mock-data";
+import { rupiah } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Star, Clock, AlertCircle, Plus, Minus, ShoppingBag } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/menu/$id")({
@@ -26,14 +26,52 @@ export const Route = createFileRoute("/app/menu/$id")({
 
 function Detail() {
   const { id } = Route.useParams();
-  const m = menus.find(x => x.id === id) ?? menus[0];
+  const [m, setM] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [qty, setQty] = useState(1);
   const [selected, setSelected] = useState<string[]>([]);
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
   const nav = useNavigate();
   const auth = useAuth();
 
-  const addonTotal = m.addons.filter(a => selected.includes(a.id)).reduce((s, a) => s + a.price, 0);
+  useEffect(() => {
+    const fetchMenu = async () => {
+      try {
+        const res = await fetch(`/api/menu-items/${id}`);
+        if (!res.ok) throw new Error("Not found");
+        const data = await res.json();
+        setM({
+          id: data.id,
+          name: data.name,
+          tenant: data.seller_name || "Tenant",
+          tenantId: data.seller_id,
+          price: data.price,
+          rating: 0,
+          image: data.image_url || "",
+          category: data.category,
+          description: data.description || "",
+          stock: data.stock,
+          prepTime: "",
+          allergens: [],
+          addons: data.addons || [],
+          variants: data.variants || [],
+          is_sold_out: data.is_sold_out,
+        });
+      } catch (e) {
+        toast.error("Menu tidak ditemukan");
+        nav({ to: "/app" });
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMenu();
+  }, [id, nav]);
+
+  if (loading || !m) {
+    return <div className="p-8 text-center text-muted-foreground animate-pulse">Memuat menu...</div>;
+  }
+
+  const addonTotal = m.addons.filter((a: any) => selected.includes(a.id)).reduce((s: number, a: any) => s + a.price, 0);
   const total = (m.price + addonTotal) * qty;
 
   return (
@@ -60,34 +98,39 @@ function Detail() {
 
           <p className="mt-4 text-muted-foreground leading-relaxed">{m.description}</p>
 
-          <Card className="mt-6 p-4 flex items-start gap-3 border-warning/30 bg-warning/5">
-            <AlertCircle className="h-5 w-5 text-warning shrink-0 mt-0.5" />
-            <div className="text-sm">
-              <div className="font-semibold">Informasi alergen</div>
-              <div className="text-muted-foreground">Mengandung: {m.allergens.join(", ")}</div>
-            </div>
-          </Card>
+          {m.allergens && m.allergens.length > 0 && (
+            <Card className="mt-6 p-4 flex items-start gap-3 border-warning/30 bg-warning/5">
+              <AlertCircle className="h-5 w-5 text-warning shrink-0 mt-0.5" />
+              <div className="text-sm">
+                <div className="font-semibold">Informasi alergen</div>
+                <div className="text-muted-foreground">Mengandung: {m.allergens.join(", ")}</div>
+              </div>
+            </Card>
+          )}
 
-          <Separator className="my-6" />
-
-          <h3 className="font-display font-bold">Tambahan</h3>
-          <div className="mt-3 space-y-2">
-            {m.addons.map(a => (
-              <label key={a.id} className="flex cursor-pointer items-center justify-between rounded-xl border p-3 transition hover:border-primary/50">
-                <div className="flex items-center gap-3">
-                  <Checkbox checked={selected.includes(a.id)} onCheckedChange={(c) => setSelected(s => c ? [...s, a.id] : s.filter(x => x !== a.id))} />
-                  <span className="text-sm font-medium">{a.name}</span>
-                </div>
-                <span className="text-sm text-muted-foreground">+ {rupiah(a.price)}</span>
-              </label>
-            ))}
-          </div>
+          {m.addons && m.addons.length > 0 && (
+            <>
+              <Separator className="my-6" />
+              <h3 className="font-display font-bold">Tambahan</h3>
+              <div className="mt-3 space-y-2">
+                {m.addons.map((a: any) => (
+                  <label key={a.id} className="flex cursor-pointer items-center justify-between rounded-xl border p-3 transition hover:border-primary/50">
+                    <div className="flex items-center gap-3">
+                      <Checkbox checked={selected.includes(a.id)} onCheckedChange={(c) => setSelected(s => c ? [...s, a.id] : s.filter(x => x !== a.id))} />
+                      <span className="text-sm font-medium">{a.name}</span>
+                    </div>
+                    <span className="text-sm text-muted-foreground">+ {rupiah(a.price)}</span>
+                  </label>
+                ))}
+              </div>
+            </>
+          )}
 
           {m.variants && m.variants.length > 0 && (
             <>
               <Separator className="my-6" />
-              {m.variants.map((variant) => (
-                <div key={variant.id} className="mb-6">
+              {m.variants.map((variant: any) => (
+                <div key={variant.id || variant.name} className="mb-6">
                   <h3 className="font-display font-bold flex items-center gap-2">
                     {variant.name} {variant.required && <span className="text-destructive text-xs font-normal">(Wajib)</span>}
                   </h3>
@@ -96,7 +139,7 @@ function Detail() {
                     value={selectedVariants[variant.name]}
                     onValueChange={(val) => setSelectedVariants(prev => ({ ...prev, [variant.name]: val }))}
                   >
-                    {variant.options.map(opt => (
+                    {variant.options.map((opt: string) => (
                       <Label key={opt} className="cursor-pointer flex items-center gap-3 rounded-xl border p-3 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5">
                         <RadioGroupItem value={opt} />
                         <span className="text-sm font-medium">{opt}</span>
@@ -129,9 +172,9 @@ function Detail() {
               className="gap-2 flex-1 max-w-xs"
               onClick={() => {
                 if (m.variants) {
-                  const missing = m.variants.filter(v => v.required && !selectedVariants[v.name]);
+                  const missing = m.variants.filter((v: any) => v.required && !selectedVariants[v.name]);
                   if (missing.length > 0) {
-                    toast.error(`Harap pilih ${missing.map(m => m.name).join(", ")} terlebih dahulu.`);
+                    toast.error(`Harap pilih ${missing.map((v: any) => v.name).join(", ")} terlebih dahulu.`);
                     return;
                   }
                 }

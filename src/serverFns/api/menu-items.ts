@@ -58,6 +58,24 @@ export async function handleMenuItemsApiRequest(request: Request) {
     }
   }
 
+  // GET /api/menu-items/:id
+  const getMatch = pathname.match(/^\/api\/menu-items\/([^/]+)$/);
+  if (request.method === "GET" && getMatch) {
+    try {
+      const res = await query(
+        `SELECT mi.*, u.name as seller_name FROM menu_items mi
+         LEFT JOIN users u ON u.id = mi.seller_id
+         WHERE mi.id = $1`,
+        [getMatch[1]]
+      );
+      if (res.rows.length === 0) return jsonResponse({ error: "Not found" }, 404);
+      return jsonResponse(res.rows[0]);
+    } catch (e) {
+      console.error(e);
+      return jsonResponse({ error: "Internal server error" }, 500);
+    }
+  }
+
   // PATCH /api/menu-items/:id — update stock / sold_out / name etc
   const patchMatch = pathname.match(/^\/api\/menu-items\/([^/]+)$/);
   if (request.method === "PATCH" && patchMatch) {

@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "./__root";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -25,6 +25,7 @@ type Tab = "semua" | "makanan" | "minuman";
 
 function BuyerHome() {
   const auth = useAuth();
+  const nav = useNavigate();
   const [menus, setMenus] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -54,6 +55,10 @@ function BuyerHome() {
   const handleAddToCart = (m: any) => {
     if (m.is_sold_out || m.stock <= 0) {
       toast.error("Menu ini sudah habis / Sold Out");
+      return;
+    }
+    if (m.variants && m.variants.length > 0) {
+      nav({ to: `/app/menu/${m.id}` });
       return;
     }
     // Build a compatible menu object for addToCart
@@ -176,11 +181,13 @@ function BuyerHome() {
               <Card key={m.id} className={`overflow-hidden group transition hover:shadow-md ${m.is_sold_out || m.stock <= 0 ? "opacity-60" : ""}`}>
                 <div className="relative aspect-[4/3] overflow-hidden bg-muted">
                   {m.image_url ? (
-                    <img src={m.image_url} alt={m.name} className="h-full w-full object-cover transition group-hover:scale-105" />
+                    <Link to={`/app/menu/${m.id}`}>
+                      <img src={m.image_url} alt={m.name} className="h-full w-full object-cover transition group-hover:scale-105" />
+                    </Link>
                   ) : (
-                    <div className="h-full w-full flex items-center justify-center text-5xl">
+                    <Link to={`/app/menu/${m.id}`} className="h-full w-full flex items-center justify-center text-5xl">
                       {m.category === "Minuman" ? "🥤" : m.category === "Snack" ? "🍪" : m.category === "Dessert" ? "🍰" : m.category === "Sehat" ? "🥗" : "🍽️"}
-                    </div>
+                    </Link>
                   )}
                   {(m.is_sold_out || m.stock <= 0) && (
                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
