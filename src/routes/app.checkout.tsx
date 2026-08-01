@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "./__root";
+import type { Order } from "./__root";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -26,7 +27,7 @@ function Checkout() {
   const nav = useNavigate();
   const auth = useAuth();
   const [time, setTime] = useState("12:15");
-  const [paymentMethod, setPaymentMethod] = useState("E-Wallet (Gopay/OVO/Dana)");
+  const [paymentMethod, setPaymentMethod] = useState("QRIS");
 
   const items = auth.cartItems;
   const subtotal = items.reduce((s, i) => {
@@ -41,9 +42,21 @@ function Checkout() {
       toast.error("Keranjang kosong. Tambahkan menu terlebih dahulu.");
       return;
     }
+    const orderId = `SK-${Date.now()}`;
+    const newOrder: Order = {
+      id: orderId,
+      items: [...items],
+      total,
+      date: new Date().toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" }),
+      status: "diproses",
+      paymentMethod,
+      pickupTime: time,
+      buyerName: auth.user?.name || "Pembeli",
+    };
+    auth.addOrder(newOrder);
     auth.clearCart();
-    toast.success(`Pesanan dikonfirmasi (${paymentMethod})`);
-    nav({ to: "/app/tracking/$id", params: { id: "k2410" } });
+    toast.success(`Pesanan dikonfirmasi! Bayar via ${paymentMethod}`);
+    nav({ to: "/app/tracking/$id", params: { id: orderId } });
   };
 
   if (!auth.user) {

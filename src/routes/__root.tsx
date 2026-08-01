@@ -28,6 +28,19 @@ export type CartItem = MenuItem & {
   selectedVariants?: Record<string, string>;
 };
 
+export type OrderStatus = "diproses" | "selesai" | "dibatalkan";
+
+export type Order = {
+  id: string;
+  items: CartItem[];
+  total: number;
+  date: string;
+  status: OrderStatus;
+  paymentMethod: string;
+  pickupTime: string;
+  buyerName: string;
+};
+
 export interface AuthContext {
   user: User | null;
   login: (user: User) => void;
@@ -37,6 +50,9 @@ export interface AuthContext {
   removeFromCart: (menuId: string) => void;
   updateQty: (menuId: string, qty: number) => void;
   clearCart: () => void;
+  orders: Order[];
+  addOrder: (order: Order) => void;
+  cancelOrder: (orderId: string) => void;
 }
 
 const AuthContextReact = createContext<AuthContext | null>(null);
@@ -161,6 +177,10 @@ function RootComponent() {
     const stored = typeof window !== "undefined" ? window.localStorage.getItem("kantin_cart") : null;
     return stored ? JSON.parse(stored) : [];
   });
+  const [orders, setOrders] = useState<Order[]>(() => {
+    const stored = typeof window !== "undefined" ? window.localStorage.getItem("kantin_orders") : null;
+    return stored ? JSON.parse(stored) : [];
+  });
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -171,6 +191,11 @@ function RootComponent() {
     if (typeof window === "undefined") return;
     window.localStorage.setItem("kantin_cart", JSON.stringify(cartItems));
   }, [cartItems]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem("kantin_orders", JSON.stringify(orders));
+  }, [orders]);
 
   const auth: AuthContext = {
     user,
@@ -198,6 +223,11 @@ function RootComponent() {
     removeFromCart: (cartItemId) => setCartItems((prev) => prev.filter((item) => item.cartItemId !== cartItemId)),
     updateQty: (cartItemId, qty) => setCartItems((prev) => prev.map((item) => (item.cartItemId === cartItemId ? { ...item, qty } : item))),
     clearCart: () => setCartItems([]),
+    orders,
+    addOrder: (order) => setOrders((prev) => [order, ...prev]),
+    cancelOrder: (orderId) => setOrders((prev) =>
+      prev.map((o) => o.id === orderId ? { ...o, status: "dibatalkan" as OrderStatus } : o)
+    ),
   };
 
   return (

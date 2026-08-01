@@ -1,8 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, ChefHat, ShoppingBag, PartyPopper, MapPin } from "lucide-react";
+import { Check, ChefHat, ShoppingBag, PartyPopper, MapPin, X } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { useAuth } from "./__root";
@@ -43,11 +43,16 @@ function formatTime(seconds: number): string {
 function Tracking() {
   const { id } = Route.useParams();
   const auth = useAuth();
+  const nav = useNavigate();
+  const order = auth.orders.find((o) => o.id === id);
+  const isCancelled = order?.status === "dibatalkan";
+
   const [currentIdx, setCurrentIdx] = useState(0);
   const [secondsLeft, setSecondsLeft] = useState(STEP_DURATIONS[0]);
   const notifiedRef = useRef(false);
 
   useEffect(() => {
+    if (isCancelled) return;
     if (currentIdx >= STEP_DURATIONS.length) return;
     const duration = STEP_DURATIONS[currentIdx];
     if (duration === 0) return;
@@ -59,12 +64,9 @@ function Tracking() {
           clearInterval(interval);
           const next = currentIdx + 1;
           setCurrentIdx(next);
-          // Notifikasi saat pesanan siap diambil
           if (next === 2 && !notifiedRef.current) {
             notifiedRef.current = true;
-            toast.success("🎉 Pesanan kamu sudah SIAP! Segera ambil ke tenant ya!", {
-              duration: 8000,
-            });
+            toast.success("🎉 Pesanan kamu sudah SIAP! Segera ambil ke tenant ya!", { duration: 8000 });
           }
           return 0;
         }
@@ -73,10 +75,38 @@ function Tracking() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [currentIdx]);
+  }, [currentIdx, isCancelled]);
 
-  const statusLabel = ["Pesanan Diterima", "Sedang dimasak...", "Siap Diambil! 🎉", "Selesai"][currentIdx] || "Selesai";
-  const isActive = currentIdx < steps.length - 1;
+  const handleCancel = () => {
+    if (currentIdx >= 2) {
+      toast.error("Pesanan sudah dimasak, tidak bisa dibatalkan lagi.");
+      return;
+    }
+    auth.cancelOrder(id);
+    toast.error("Pesanan berhasil dibatalkan.");
+    setTimeout(() => nav({ to: "/app/history" }), 500);
+  };
+
+  const statusLabel = isCancelled
+    ? "Pesanan Dibatalkan"
+    : (["Pesanan Diterima", "Sedang dimasak...", "Siap Diambil! 🎉", "Selesai"][currentIdx] || "Selesai");
+  const isActive = !isCancelled && currentIdx < steps.length - 1;
+
+  if (isCancelled) {
+    return (
+      <div className="mx-auto max-w-3xl text-center py-20">
+        <div className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-destructive/10 text-destructive mb-6">
+          <X className="h-10 w-10" />
+        </div>
+        <h1 className="font-display text-3xl font-extrabold">Pesanan Dibatalkan</h1>
+        <p className="mt-3 text-muted-foreground">Pesanan #{id} telah dibatalkan. Kamu bisa pesan menu lain kapan saja!</p>
+        <div className="mt-8 flex justify-center gap-3">
+          <Link to="/app"><Button>Pesan Lagi</Button></Link>
+          <Link to="/app/history"><Button variant="outline">Lihat Riwayat</Button></Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -133,14 +163,14 @@ function Tracking() {
           <MapPin className="h-5 w-5" />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="font-semibold">Risol Tenant</div>
+          <div className="font-semibold">Tenant Kantin</div>
           <div className="text-xs text-muted-foreground">Area Kantin Utama</div>
         </div>
       </Card>
 
-      <div className="mt-4">
+      <div className="mt-4 space-y-3">
         {currentIdx === 2 && (
-          <Card className="mb-4 p-5 border-primary/50 bg-primary/5 text-center">
+          <Card className="p-5 border-primary/50 bg-primary/5 text-center">
             <div className="text-sm text-muted-foreground mb-1">Ambil pesanan atas nama:</div>
             <div className="font-display text-2xl font-bold text-primary">{auth.user?.name || "Pengguna"}</div>
           </Card>
@@ -148,7 +178,13 @@ function Tracking() {
         <Link to="/app">
           <Button size="lg" variant="outline" className="w-full">Kembali ke Beranda</Button>
         </Link>
+        {currentIdx < 2 && (
+          <Button size="lg" variant="destructive" className="w-full gap-2" onClick={handleCancel}>
+            <X className="h-4 w-4" /> Batalkan Pesanan
+          </Button>
+        )}
       </div>
     </div>
   );
 }
+
