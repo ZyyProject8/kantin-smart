@@ -35,16 +35,16 @@ export const tenants: any[] = [];
 export const orderHistory: any[] = [];
 
 export const testimonials = [
-  { name: "Dinda P.", role: "Mahasiswa UI", text: "Nggak perlu antri lagi! Pesan dari kelas, langsung ambil. Life saver banget.", avatar: "https://i.pravatar.cc/100?img=47" },
-  { name: "Rizky A.", role: "Pegawai Kantor", text: "Break makan siang jadi efisien. Suka fitur tracking dan QR pickup-nya.", avatar: "https://i.pravatar.cc/100?img=12" },
-  { name: "Bu Sri", role: "Pemilik Tenant", text: "Order masuk rapi di kitchen display. Omzet naik 30% sejak pakai Smart Kantin.", avatar: "https://i.pravatar.cc/100?img=32" },
+  { name: "Dinda P.", role: "Siswa SMA", text: "Bisa pesan dari kelas saat mau jam istirahat. Nanti pas ke kantin tinggal sebut nama, makanan udah siap!", avatar: "https://i.pravatar.cc/100?img=47" },
+  { name: "Pak Rizky", role: "Guru", text: "Jam istirahat yang singkat jadi lebih efisien. Fitur live tracking status pesanannya sangat membantu.", avatar: "https://i.pravatar.cc/100?img=12" },
+  { name: "Bu Sri", role: "Pemilik Tenant", text: "Order masuk rapi di aplikasi. Gak pusing lagi ngingetin siswa yang pesen, omzet juga makin bagus.", avatar: "https://i.pravatar.cc/100?img=32" },
 ];
 
 export const faqs = [
-  { q: "Apakah Smart Kantin berbayar?", a: "Aplikasi gratis untuk pembeli. Tenant hanya membayar biaya administrasi kecil per transaksi sukses." },
-  { q: "Bagaimana cara pengambilan pesanan?", a: "Tunjukkan QR Code pickup di aplikasi ke tenant. Cepat, tanpa antri." },
-  { q: "Apakah bisa membayar tunai?", a: "Bisa. Kami mendukung pembayaran tunai, e-wallet, dan saldo kartu pelajar." },
-  { q: "Bagaimana jika pesanan salah?", a: "Hubungi customer service in-app. Kami akan bantu proses refund dalam 1x24 jam." },
+  { q: "Apakah Smart Kantin berbayar?", a: "Aplikasi gratis untuk pembeli. Kami tidak membebankan biaya pelayanan apa pun ke siswa." },
+  { q: "Bagaimana cara pengambilan pesanan?", a: "Tunggu status pesanan berubah menjadi 'Siap Diambil'. Setelah itu sebutkan nama pesananmu ke tenant untuk mengambil." },
+  { q: "Apa saja metode pembayarannya?", a: "Kami saat ini hanya mendukung dua metode: pembayaran via QRIS dan pembayaran Tunai langsung di kasir tenant." },
+  { q: "Bagaimana jika pesanan salah atau batal?", a: "Pesanan masih bisa dibatalkan dari aplikasi selama tenant belum mulai memasak pesananmu." },
 ];
 
 export const salesData: any[] = [
