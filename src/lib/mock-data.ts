@@ -30,9 +30,9 @@ export const categories = [
   { id: "c6", name: "Dessert", icon: "🍰" },
 ];
 
-export const tenants = [];
+export const tenants: any[] = [];
 
-export const orderHistory = [];
+export const orderHistory: any[] = [];
 
 export const testimonials = [
   { name: "Dinda P.", role: "Mahasiswa UI", text: "Nggak perlu antri lagi! Pesan dari kelas, langsung ambil. Life saver banget.", avatar: "https://i.pravatar.cc/100?img=47" },
@@ -47,7 +47,7 @@ export const faqs = [
   { q: "Bagaimana jika pesanan salah?", a: "Hubungi customer service in-app. Kami akan bantu proses refund dalam 1x24 jam." },
 ];
 
-export const salesData = [
+export const salesData: any[] = [
   { day: "Sen", value: 0 },
   { day: "Sel", value: 0 },
   { day: "Rab", value: 0 },
@@ -57,6 +57,6 @@ export const salesData = [
   { day: "Min", value: 0 },
 ];
 
-export const kitchenOrders = [];
+export const kitchenOrders: any[] = [];
 
 export const rupiah = (n: number) => `Rp${n.toLocaleString("id-ID")}`;

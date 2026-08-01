@@ -64,7 +64,7 @@ function SellerOrders() {
                     </div>
                     <div className="mt-1 text-sm text-muted-foreground">{o.customer}</div>
                     <div className="mt-3 space-y-1">
-                      {o.items.map((it, i) => (
+                      {o.items.map((it: any, i: number) => (
                         <div key={i} className="text-sm flex items-center gap-2">
                           <span className="h-1.5 w-1.5 rounded-full bg-primary" /> {it}
                         </div>

@@ -58,7 +58,7 @@ function BuyerHome() {
       return;
     }
     if (m.variants && m.variants.length > 0) {
-      nav({ to: `/app/menu/${m.id}` });
+      nav({ to: "/app/menu/$id", params: { id: m.id } });
       return;
     }
     // Build a compatible menu object for addToCart
@@ -181,11 +181,11 @@ function BuyerHome() {
               <Card key={m.id} className={`overflow-hidden group transition hover:shadow-md ${m.is_sold_out || m.stock <= 0 ? "opacity-60" : ""}`}>
                 <div className="relative aspect-[4/3] overflow-hidden bg-muted">
                   {m.image_url ? (
-                    <Link to={`/app/menu/${m.id}`}>
+                    <Link to="/app/menu/$id" params={{ id: m.id }}>
                       <img src={m.image_url} alt={m.name} className="h-full w-full object-cover transition group-hover:scale-105" />
                     </Link>
                   ) : (
-                    <Link to={`/app/menu/${m.id}`} className="h-full w-full flex items-center justify-center text-5xl">
+                    <Link to="/app/menu/$id" params={{ id: m.id }} className="h-full w-full flex items-center justify-center text-5xl">
                       {m.category === "Minuman" ? "🥤" : m.category === "Snack" ? "🍪" : m.category === "Dessert" ? "🍰" : m.category === "Sehat" ? "🥗" : "🍽️"}
                     </Link>
                   )}

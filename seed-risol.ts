@@ -1,11 +1,16 @@
 import { query, closePool } from "./src/lib/db";
+import bcrypt from "bcryptjs";
 
 async function main() {
   try {
-    const userRes = await query(`SELECT id FROM users WHERE role = 'seller' LIMIT 1`);
+    let userRes = await query(`SELECT id FROM users WHERE role = 'seller' LIMIT 1`);
     if (userRes.rows.length === 0) {
-      console.log("No seller found!");
-      return;
+      console.log("No seller found! Creating one...");
+      const hash = await bcrypt.hash("password123", 10);
+      userRes = await query(
+        `INSERT INTO users (name, email, password_hash, role) VALUES ('Risol Tenant', 'risol@tenant.com', $1, 'seller') RETURNING id`,
+        [hash]
+      );
     }
     const sellerId = userRes.rows[0].id;
     
