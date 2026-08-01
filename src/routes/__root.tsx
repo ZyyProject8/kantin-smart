@@ -15,6 +15,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import type { MenuItem } from "@/lib/mock-data";
 
 export type User = {
+  id: string;
   name: string;
   email: string;
   role: string;
