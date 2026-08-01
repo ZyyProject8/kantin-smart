@@ -80,7 +80,7 @@ function Hero() {
           <div className="absolute -inset-8 -z-10 rounded-[3rem] gradient-primary opacity-10 blur-3xl" />
           <div className="grid grid-cols-6 grid-rows-6 gap-4 h-[520px]">
             <Card className="col-span-4 row-span-4 overflow-hidden p-0 shadow-glow">
-              <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80" alt="menu" className="h-full w-full object-cover" />
+              <img src="/image/nutrisari.jpg" alt="menu" className="h-full w-full object-cover" />
             </Card>
             <Card className="col-span-2 row-span-2 flex flex-col justify-between p-4">
               <ScanLine className="h-6 w-6 text-primary" />
@@ -193,12 +193,12 @@ function Preview() {
           <div className="absolute -inset-10 -z-10 rounded-full gradient-primary opacity-20 blur-3xl" />
           <div className="mx-auto aspect-[9/18] max-w-[280px] rounded-[2.5rem] border-8 border-foreground bg-foreground p-1 shadow-2xl">
             <div className="h-full w-full overflow-hidden rounded-[2rem] bg-background">
-              <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=400&q=80" alt="preview" className="h-1/2 w-full object-cover" />
+              <img src="/image/risol.jpg" alt="preview" className="h-1/2 w-full object-cover" />
               <div className="p-4">
                 <div className="text-xs text-muted-foreground">Menu Populer</div>
-                <div className="font-display text-lg font-bold">Mie Ayam Bakso</div>
+                <div className="font-display text-lg font-bold">Risol Bites</div>
                 <div className="mt-2 flex items-center justify-between">
-                  <div className="font-display font-bold text-primary">Rp15.000</div>
+                  <div className="font-display font-bold text-primary">Rp4.000</div>
                   <Link to="/app"><Button size="sm" className="h-8">+ Pesan</Button></Link>
                 </div>
                 <div className="mt-4 h-2 rounded-full bg-muted">
