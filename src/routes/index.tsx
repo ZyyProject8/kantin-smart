@@ -50,11 +50,11 @@ function Hero() {
           <Badge variant="secondary" className="mb-5 w-fit gap-1.5 rounded-full px-3 py-1">
             <Sparkles className="h-3.5 w-3.5 text-primary" /> Baru · Siap Sambut Semester Baru!
           </Badge>
-          <h1 className="font-display text-4xl font-extrabold tracking-tight sm:text-6xl lg:text-7xl">
-            Jajan di kantin sekolah, <span className="text-primary">bebas antri.</span>
+          <h1 className="font-display text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
+            Jajan di kantin sekolah, <span className="text-primary">makin praktis.</span>
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground sm:text-xl">
-            Tinggal Klik, Jajan Langsung Meluncur! Pesan makanan favoritmu dari mana aja, bayar praktis pakai metode pilihanmu, dan langsung ambil tanpa perlu antri panjang. Bye-bye perut keroncongan!
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground leading-relaxed">
+            Pesan jajan favoritmu dari kelas sebelum kehabisan! Bayar lebih gampang pakai QRIS, pantau status pesananmu, dan tinggal jemput makanan di tenant saat notifikasi siap berbunyi. Lebih santai, perut auto kenyang!
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link to="/app"><Button size="lg" className="gap-2 shadow-glow">Pesan Sekarang <ArrowRight className="h-4 w-4" /></Button></Link>

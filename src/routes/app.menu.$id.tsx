@@ -167,24 +167,45 @@ function Detail() {
               <div className="text-xs text-muted-foreground">Total</div>
               <div className="font-display text-2xl font-extrabold">{rupiah(total)}</div>
             </div>
-            <Button
-              size="lg"
-              className="gap-2 flex-1 max-w-xs"
-              onClick={() => {
-                if (m.variants) {
-                  const missing = m.variants.filter((v: any) => v.required && !selectedVariants[v.name]);
-                  if (missing.length > 0) {
-                    toast.error(`Harap pilih ${missing.map((v: any) => v.name).join(", ")} terlebih dahulu.`);
-                    return;
+            <div className="flex flex-1 max-w-xs gap-2">
+              <Button
+                size="lg"
+                variant="outline"
+                className="flex-1"
+                onClick={() => {
+                  if (m.variants) {
+                    const missing = m.variants.filter((v: any) => v.required && !selectedVariants[v.name]);
+                    if (missing.length > 0) {
+                      toast.error(`Harap pilih ${missing.map((v: any) => v.name).join(", ")} terlebih dahulu.`);
+                      return;
+                    }
                   }
-                }
-                auth.addToCart(m, qty, selected, selectedVariants);
-                toast.success("Ditambahkan ke keranjang");
-                nav({ to: "/app/cart" });
-              }}
-            >
-              <ShoppingBag className="h-4 w-4" /> Tambah ke Keranjang
-            </Button>
+                  auth.addToCart(m as any, qty, selected, selectedVariants);
+                  toast.success(`${m.name} ditambahkan ke keranjang!`);
+                  nav({ to: "/app" });
+                }}
+              >
+                <ShoppingBag className="h-4 w-4 shrink-0" />
+              </Button>
+              <Button
+                size="lg"
+                className="flex-[3]"
+                onClick={() => {
+                  if (m.variants) {
+                    const missing = m.variants.filter((v: any) => v.required && !selectedVariants[v.name]);
+                    if (missing.length > 0) {
+                      toast.error(`Harap pilih ${missing.map((v: any) => v.name).join(", ")} terlebih dahulu.`);
+                      return;
+                    }
+                  }
+                  auth.addToCart(m as any, qty, selected, selectedVariants);
+                  toast.success("Memproses pesanan...");
+                  nav({ to: "/app/checkout" });
+                }}
+              >
+                Beli Langsung
+              </Button>
+            </div>
           </div>
         </div>
       </div>
