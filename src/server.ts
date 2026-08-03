@@ -7,6 +7,7 @@ import { handleAuthApiRequest } from "./serverFns/api/auth";
 import { handleMenuItemsApiRequest } from "./serverFns/api/menu-items";
 import { handleSellerStatsApiRequest } from "./serverFns/api/seller-stats";
 import { handleOrdersApiRequest } from "./serverFns/api/orders";
+import { handleAdminStatsApiRequest } from "./serverFns/api/admin-stats";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -67,6 +68,9 @@ export default {
       }
       if (url.pathname.startsWith("/api/orders")) {
         return await handleOrdersApiRequest(request);
+      }
+      if (url.pathname.startsWith("/api/admin-stats")) {
+        return await handleAdminStatsApiRequest(request);
       }
 
       const handler = await getServerEntry();

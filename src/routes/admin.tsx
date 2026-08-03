@@ -9,11 +9,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { salesData, rupiah } from "@/lib/mock-data";
-import { Users, Store, Wallet, ShoppingBag, ArrowUpRight, ArrowLeft, ShieldCheck, Plus, Trash2, LayoutDashboard, UtensilsCrossed, LogOut } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { rupiah } from "@/lib/mock-data";
+import { Users, Store, Wallet, ShoppingBag, ArrowUpRight, ShieldCheck, Plus, Trash2, LayoutDashboard, UtensilsCrossed, LogOut, Package, RefreshCw, CheckCircle2, Clock, XCircle } from "lucide-react";
 import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, BarChart, Bar } from "recharts";
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin")({
@@ -33,7 +34,7 @@ const CATEGORIES = ["Makanan", "Minuman", "Snack", "Dessert", "Sehat"];
 function AdminDash() {
   const auth = useAuth();
   const nav = useNavigate();
-  const [activeTab, setActiveTab] = useState<"dashboard" | "menus">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "menus" | "users">("dashboard");
   const [menus, setMenus] = useState<any[]>([]);
   const [loadingMenus, setLoadingMenus] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
@@ -88,7 +89,7 @@ function AdminDash() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          seller_id: auth.user!.id,
+          seller_id: null,
           name: form.name,
           description: form.description,
           price: Number(form.price),
@@ -109,10 +110,20 @@ function AdminDash() {
   return (
     <div className="min-h-screen bg-surface flex">
       {/* Sidebar */}
-      <aside className="hidden lg:flex w-64 flex-col border-r bg-card">
-        <div className="p-6 border-b">
+      <aside className="hidden lg:flex w-64 flex-col border-r bg-card sticky top-0 h-screen">
+        <div className="p-6 border-b flex flex-col gap-2">
           <Logo />
-          <Badge variant="secondary" className="mt-2 rounded-full">Admin</Badge>
+          <div className="flex items-center gap-2">
+            <Avatar className="h-8 w-8">
+              <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                {auth.user.name.substring(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div className="min-w-0">
+              <div className="text-sm font-semibold truncate">{auth.user.name}</div>
+              <Badge variant="secondary" className="rounded-full text-[10px]">Admin</Badge>
+            </div>
+          </div>
         </div>
         <nav className="flex-1 p-4 space-y-1">
           <button
@@ -126,6 +137,12 @@ function AdminDash() {
             className={`w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${activeTab === "menus" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
           >
             <UtensilsCrossed className="h-4 w-4" /> Kelola Menu
+          </button>
+          <button
+            onClick={() => setActiveTab("users")}
+            className={`w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${activeTab === "users" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+          >
+            <Users className="h-4 w-4" /> Data Pengguna
           </button>
         </nav>
         <div className="p-4 border-t">
@@ -146,15 +163,17 @@ function AdminDash() {
               <Logo />
               <Badge variant="secondary" className="rounded-full">Admin</Badge>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-1">
               <Button variant={activeTab === "dashboard" ? "default" : "ghost"} size="sm" onClick={() => setActiveTab("dashboard")}>Dashboard</Button>
               <Button variant={activeTab === "menus" ? "default" : "ghost"} size="sm" onClick={() => setActiveTab("menus")}>Menu</Button>
+              <Button variant={activeTab === "users" ? "default" : "ghost"} size="sm" onClick={() => setActiveTab("users")}>User</Button>
             </div>
           </div>
         </header>
 
         <main className="container-page py-8 space-y-8">
           {activeTab === "dashboard" && <DashboardView auth={auth} />}
+          {activeTab === "users" && <UsersView />}
           {activeTab === "menus" && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
@@ -232,40 +251,158 @@ function AdminDash() {
   );
 }
 
+// ── Users View ────────────────────────────────────────────────────────────────
+function UsersView() {
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin-stats"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin-stats");
+      if (!res.ok) throw new Error();
+      return res.json();
+    },
+  });
+
+  const roleLabel: Record<string, string> = {
+    admin: "Admin",
+    seller: "Tenant",
+    siswa: "Siswa",
+    customer: "Siswa",
+  };
+
+  const roleColor: Record<string, string> = {
+    admin: "bg-destructive/10 text-destructive",
+    seller: "bg-primary/10 text-primary",
+    siswa: "bg-muted text-muted-foreground",
+    customer: "bg-muted text-muted-foreground",
+  };
+
+  if (isLoading) return <div className="py-20 text-center text-muted-foreground animate-pulse">Memuat data pengguna...</div>;
+
+  const users = data?.recentUsers || [];
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="font-display text-3xl font-extrabold">Data Pengguna</h1>
+        <p className="text-muted-foreground">Total {data?.totalUsers || 0} pengguna terdaftar</p>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card className="p-5">
+          <div className="text-xs text-muted-foreground">Total Siswa</div>
+          <div className="mt-1 font-display text-3xl font-extrabold">{data?.totalStudents || 0}</div>
+        </Card>
+        <Card className="p-5">
+          <div className="text-xs text-muted-foreground">Total Tenant</div>
+          <div className="mt-1 font-display text-3xl font-extrabold">{data?.totalSellers || 0}</div>
+        </Card>
+        <Card className="p-5">
+          <div className="text-xs text-muted-foreground">Total Menu</div>
+          <div className="mt-1 font-display text-3xl font-extrabold">{data?.totalMenus || 0}</div>
+        </Card>
+      </div>
+
+      <Card className="p-6">
+        <h3 className="font-display font-bold text-lg mb-4">Pengguna Terbaru</h3>
+        <div className="space-y-3">
+          {users.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">Belum ada data pengguna</div>
+          ) : users.map((u: any) => (
+            <div key={u.id} className="flex items-center gap-4 p-3 rounded-lg hover:bg-muted transition">
+              <Avatar className="h-9 w-9">
+                <AvatarFallback className="bg-primary/10 text-primary text-sm">
+                  {u.name.substring(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <div className="font-medium truncate">{u.name}</div>
+                <div className="text-xs text-muted-foreground truncate">{u.email}</div>
+              </div>
+              <Badge className={`shrink-0 rounded-full border-none text-xs ${roleColor[u.role] || "bg-muted text-muted-foreground"}`}>
+                {roleLabel[u.role] || u.role}
+              </Badge>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+// ── Dashboard View ─────────────────────────────────────────────────────────
 function DashboardView({ auth }: { auth: any }) {
-  const activities = [
-    { user: "Bu Sri", action: "Menambahkan menu baru", time: "2 mnt lalu", avatar: 32 },
-    { user: "Rizky A.", action: "Melakukan pesanan #K-2405", time: "5 mnt lalu", avatar: 12 },
-    { user: "Kopi Kanti", action: "Menandai pesanan selesai", time: "10 mnt lalu", avatar: 5 },
-    { user: "Admin", action: "Memverifikasi tenant baru", time: "1 jam lalu", avatar: 47 },
-  ];
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ["admin-stats"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin-stats");
+      if (!res.ok) throw new Error("Gagal memuat statistik");
+      return res.json();
+    },
+    refetchInterval: 30000,
+  });
+
+  const statusIcon: Record<string, any> = {
+    pending: <Clock className="h-3.5 w-3.5 text-primary" />,
+    confirmed: <RefreshCw className="h-3.5 w-3.5 text-blue-500" />,
+    preparing: <RefreshCw className="h-3.5 w-3.5 text-orange-500" />,
+    ready: <ShoppingBag className="h-3.5 w-3.5 text-green-500" />,
+    completed: <CheckCircle2 className="h-3.5 w-3.5 text-success" />,
+    cancelled: <XCircle className="h-3.5 w-3.5 text-destructive" />,
+  };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-8 animate-pulse">
+        <div className="h-10 w-64 bg-muted rounded"></div>
+        <div className="grid gap-4 md:grid-cols-4">
+          {[...Array(4)].map((_, i) => <div key={i} className="h-28 bg-muted rounded-xl"></div>)}
+        </div>
+        <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
+          <div className="h-80 bg-muted rounded-xl"></div>
+          <div className="h-80 bg-muted rounded-xl"></div>
+        </div>
+      </div>
+    );
+  }
+
+  const weekData = data?.weekData || [];
+  const activities = data?.activities || [];
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="font-display text-3xl font-extrabold">Dashboard Admin</h1>
-        <p className="text-muted-foreground">Selamat datang, {auth.user?.name}. Ringkasan operasional platform per hari ini.</p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="font-display text-3xl font-extrabold">Dashboard Admin</h1>
+          <p className="text-muted-foreground">Selamat datang, {auth.user?.name}. Ringkasan operasional platform per hari ini.</p>
+        </div>
+        <Button variant="outline" size="sm" className="gap-2" onClick={() => refetch()}>
+          <RefreshCw className="h-3.5 w-3.5" /> Refresh
+        </Button>
       </div>
 
+      {/* Stat Cards */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Stat icon={Wallet} label="Total Transaksi" value="Rp42.8jt" trend="+18%" />
-        <Stat icon={Store} label="Total Tenant" value="84" trend="+3" />
-        <Stat icon={Users} label="Total Pengguna" value="12.4k" trend="+412" />
-        <Stat icon={ShoppingBag} label="Total Order" value="230.5k" trend="+7%" />
+        <StatCard icon={Wallet} label="Total Transaksi" value={rupiah(data?.totalRevenue || 0)} trend={`${data?.totalOrders || 0} order`} />
+        <StatCard icon={Store} label="Total Tenant" value={String(data?.totalSellers || 0)} trend="seller aktif" />
+        <StatCard icon={Users} label="Total Pengguna" value={String(data?.totalUsers || 0)} trend={`${data?.totalStudents || 0} siswa`} />
+        <StatCard icon={ShoppingBag} label="Pesanan Aktif" value={String(data?.activeOrders || 0)} trend={`dari ${data?.totalOrders || 0} total`} />
       </div>
 
+      {/* Charts */}
       <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
         <Card className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-display font-bold text-lg">Transaksi Mingguan</h3>
+              <h3 className="font-display font-bold text-lg">Pendapatan Mingguan</h3>
               <p className="text-xs text-muted-foreground">7 hari terakhir</p>
             </div>
-            <Badge variant="secondary" className="rounded-full">+22%</Badge>
+            <Badge variant="secondary" className="rounded-full">
+              {rupiah(weekData.reduce((s: number, d: any) => s + d.value, 0))}
+            </Badge>
           </div>
           <div className="mt-6 h-72">
             <ResponsiveContainer>
-              <AreaChart data={salesData}>
+              <AreaChart data={weekData}>
                 <defs>
                   <linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="oklch(0.58 0.19 258)" stopOpacity={0.4} />
@@ -274,8 +411,11 @@ function DashboardView({ auth }: { auth: any }) {
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
                 <XAxis dataKey="day" stroke="var(--muted-foreground)" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="var(--muted-foreground)" fontSize={12} tickLine={false} axisLine={false} />
-                <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid var(--border)" }} />
+                <YAxis stroke="var(--muted-foreground)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `${(v/1000).toFixed(0)}k`} />
+                <Tooltip
+                  contentStyle={{ borderRadius: 12, border: "1px solid var(--border)" }}
+                  formatter={(v: any) => [rupiah(v), "Pendapatan"]}
+                />
                 <Area type="monotone" dataKey="value" stroke="oklch(0.58 0.19 258)" strokeWidth={3} fill="url(#ag)" />
               </AreaChart>
             </ResponsiveContainer>
@@ -286,27 +426,46 @@ function DashboardView({ auth }: { auth: any }) {
           <h3 className="font-display font-bold text-lg">Order per Hari</h3>
           <div className="mt-6 h-72">
             <ResponsiveContainer>
-              <BarChart data={salesData}>
+              <BarChart data={weekData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
                 <XAxis dataKey="day" stroke="var(--muted-foreground)" fontSize={12} tickLine={false} axisLine={false} />
-                <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid var(--border)" }} />
-                <Bar dataKey="value" fill="oklch(0.58 0.19 258)" radius={[8, 8, 0, 0]} />
+                <Tooltip
+                  contentStyle={{ borderRadius: 12, border: "1px solid var(--border)" }}
+                  formatter={(v: any) => [v, "Pesanan"]}
+                />
+                <Bar dataKey="orders" fill="oklch(0.58 0.19 258)" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </Card>
       </div>
 
+      {/* Recent Activity */}
       <Card className="p-6">
-        <h3 className="font-display font-bold text-lg">Aktivitas Terbaru</h3>
-        <div className="mt-4 space-y-2">
-          {activities.map((a, i) => (
-            <div key={i} className="flex items-center gap-4 p-3 rounded-lg hover:bg-muted transition">
-              <Avatar className="h-9 w-9"><AvatarImage src={`https://i.pravatar.cc/40?img=${a.avatar}`} /><AvatarFallback>U</AvatarFallback></Avatar>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-display font-bold text-lg">Aktivitas Pesanan Terbaru</h3>
+          <Badge variant="secondary" className="rounded-full">{activities.length} aktivitas</Badge>
+        </div>
+        <div className="space-y-2">
+          {activities.length === 0 ? (
+            <div className="text-center py-10 text-muted-foreground">Belum ada aktivitas pesanan</div>
+          ) : activities.map((a: any) => (
+            <div key={a.id} className="flex items-center gap-4 p-3 rounded-lg hover:bg-muted transition">
+              <Avatar className="h-9 w-9 shrink-0">
+                <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                  {(a.user || "U").substring(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
               <div className="flex-1 min-w-0">
-                <div className="text-sm"><b>{a.user}</b> <span className="text-muted-foreground">{a.action}</span></div>
+                <div className="text-sm">
+                  <b>{a.user}</b>{" "}
+                  <span className="text-muted-foreground">{a.action}</span>
+                </div>
               </div>
-              <span className="text-xs text-muted-foreground">{a.time}</span>
+              <div className="flex items-center gap-1.5 shrink-0">
+                {statusIcon[a.status]}
+                <span className="text-xs text-muted-foreground">{a.time}</span>
+              </div>
             </div>
           ))}
         </div>
@@ -315,14 +474,16 @@ function DashboardView({ auth }: { auth: any }) {
   );
 }
 
-function Stat({ icon: Icon, label, value, trend }: any) {
+function StatCard({ icon: Icon, label, value, trend }: any) {
   return (
     <Card className="p-5">
       <div className="flex items-start justify-between">
         <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary">
           <Icon className="h-5 w-5" />
         </div>
-        <Badge variant="secondary" className="text-[10px] gap-0.5"><ArrowUpRight className="h-3 w-3" />{trend}</Badge>
+        <Badge variant="secondary" className="text-[10px] gap-0.5 rounded-full">
+          <ArrowUpRight className="h-3 w-3" />{trend}
+        </Badge>
       </div>
       <div className="mt-4 text-xs text-muted-foreground">{label}</div>
       <div className="mt-1 font-display text-2xl font-extrabold">{value}</div>

@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useAuth } from "./__root";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { kitchenOrders as initial } from "@/lib/mock-data";
 import { ChefHat, Check, ArrowRight, Bell } from "lucide-react";
-import { useState } from "react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/seller/orders")({
@@ -19,8 +19,6 @@ export const Route = createFileRoute("/seller/orders")({
   component: SellerOrders,
 });
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-
 const columns = [
   { key: "pending", label: "Pesanan Baru", icon: Bell, color: "bg-primary/10 text-primary" },
   { key: "preparing", label: "Sedang Diproses", icon: ChefHat, color: "bg-warning/15 text-warning" },
@@ -29,10 +27,9 @@ const columns = [
 
 function SellerOrders() {
   const queryClient = useQueryClient();
+  const auth = useAuth();
   
-  // Asumsi ID tenant hardcode untuk sementara (atau bisa diambil dari auth ctx kalau tenant punya auth)
-  // Berdasarkan seed data, id tenant: 7ff0b4ff-1e81-4fbf-93f5-66779e5e9b97
-  const sellerId = "7ff0b4ff-1e81-4fbf-93f5-66779e5e9b97";
+  const sellerId = auth.user?.id;
 
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ["seller_orders", sellerId],

@@ -74,13 +74,12 @@ function SellerLayout() {
             <div className="flex items-center justify-between px-6 h-16">
               <div className="md:hidden"><Logo /></div>
               <div className="hidden md:flex items-center gap-2">
-                <Badge variant="secondary" className="rounded-full">Warung Bu Sri</Badge>
+                <Badge variant="secondary" className="rounded-full">{auth.user.name}</Badge>
                 <span className="text-xs text-muted-foreground">Tenant Dashboard</span>
               </div>
               <div className="flex items-center gap-3">
                 <Avatar className="h-9 w-9">
-                  <AvatarImage src="https://i.pravatar.cc/100?img=32" />
-                  <AvatarFallback>BS</AvatarFallback>
+                  <AvatarFallback>{auth.user.name.substring(0, 2).toUpperCase()}</AvatarFallback>
                 </Avatar>
               </div>
             </div>

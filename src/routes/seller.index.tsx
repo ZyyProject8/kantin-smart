@@ -16,10 +16,10 @@ export const Route = createFileRoute("/seller/")({
       { property: "og:description", content: "Statistik penjualan tenant Anda." },
     ],
   }),
-  component: SellerDash,
+  component: SellerIndex,
 });
 
-function SellerDash() {
+function SellerIndex() {
   const auth = useAuth();
   const sellerId = auth.user?.id;
 

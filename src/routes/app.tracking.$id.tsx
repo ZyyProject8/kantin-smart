@@ -1,9 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, ChefHat, ShoppingBag, PartyPopper, MapPin, X } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { useAuth } from "./__root";
 
@@ -18,8 +19,6 @@ export const Route = createFileRoute("/app/tracking/$id")({
   }),
   component: Tracking,
 });
-
-import { useQuery } from "@tanstack/react-query";
 
 const steps = [
   { key: "pending", label: "Pesanan Diterima", desc: "Menunggu konfirmasi tenant", icon: Check },

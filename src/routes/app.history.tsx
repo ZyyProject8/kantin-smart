@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -176,8 +177,6 @@ function OrderCard({ o }: { o: any }) {
     </Card>
   );
 }
-
-import { useQuery } from "@tanstack/react-query";
 
 function History() {
   const auth = useAuth();
