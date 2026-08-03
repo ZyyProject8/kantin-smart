@@ -37,26 +37,54 @@ function Checkout() {
   }, 0);
   const total = subtotal;
 
-  const handleConfirm = () => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleConfirm = async () => {
     if (!items.length) {
       toast.error("Keranjang kosong. Tambahkan menu terlebih dahulu.");
       return;
     }
-    const orderId = `SK-${Date.now()}`;
-    const newOrder: Order = {
-      id: orderId,
-      items: [...items],
-      total,
-      date: new Date().toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" }),
-      status: "diproses",
-      paymentMethod,
-      pickupTime: time,
-      buyerName: auth.user?.name || "Pembeli",
-    };
-    auth.addOrder(newOrder);
-    auth.clearCart();
-    toast.success(`Pesanan dikonfirmasi! Bayar via ${paymentMethod}`);
-    nav({ to: "/app/tracking/$id", params: { id: orderId } });
+    
+    if (!auth.user) {
+      toast.error("Silakan login terlebih dahulu.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      // Ambil seller_id dari item pertama (asumsi 1 order = 1 seller, atau fallback ke seller_id dari item mana pun)
+      const sellerId = items[0]?.seller_id || null;
+      
+      const payload = {
+        user_id: auth.user.id,
+        seller_id: sellerId,
+        items: items,
+        total,
+        payment_method: paymentMethod,
+        pickup_time: time
+      };
+
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        throw new Error("Gagal membuat pesanan");
+      }
+
+      const data = await res.json();
+      
+      auth.clearCart();
+      toast.success(`Pesanan dikonfirmasi! Bayar via ${paymentMethod}`);
+      nav({ to: "/app/tracking/$id", params: { id: data.id } });
+    } catch (e: any) {
+      console.error(e);
+      toast.error(e.message || "Terjadi kesalahan saat memproses pesanan.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!auth.user) {
@@ -153,8 +181,8 @@ function Checkout() {
           <div className="mt-4 space-y-2 text-sm">
             <div className="flex justify-between font-display text-xl font-extrabold"><span>Total</span><span className="text-primary">{rupiah(total)}</span></div>
           </div>
-          <Button size="lg" className="w-full mt-6" onClick={handleConfirm}>
-            Konfirmasi Pesanan
+          <Button size="lg" className="w-full mt-6" onClick={handleConfirm} disabled={isSubmitting}>
+            {isSubmitting ? "Memproses..." : "Konfirmasi Pesanan"}
           </Button>
           <p className="mt-3 text-center text-xs text-muted-foreground">Dengan menekan konfirmasi, Anda menyetujui S&K.</p>
         </Card>

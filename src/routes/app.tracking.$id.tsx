@@ -19,77 +19,77 @@ export const Route = createFileRoute("/app/tracking/$id")({
   component: Tracking,
 });
 
+import { useQuery } from "@tanstack/react-query";
+
 const steps = [
-  { key: "received", label: "Pesanan Diterima", desc: "Tenant sudah menerima pesananmu", icon: Check },
-  { key: "cooking", label: "Sedang Dimasak", desc: "Chef sedang menyiapkan pesanan", icon: ChefHat },
+  { key: "pending", label: "Pesanan Diterima", desc: "Menunggu konfirmasi tenant", icon: Check },
+  { key: "confirmed", label: "Dikonfirmasi", desc: "Pesanan segera disiapkan", icon: Check },
+  { key: "preparing", label: "Sedang Dimasak", desc: "Chef sedang menyiapkan pesanan", icon: ChefHat },
   { key: "ready", label: "Siap Diambil", desc: "Sebutkan namamu di kasir tenant", icon: ShoppingBag },
-  { key: "done", label: "Selesai", desc: "Selamat menikmati!", icon: PartyPopper },
+  { key: "completed", label: "Selesai", desc: "Selamat menikmati!", icon: PartyPopper },
 ];
-
-// Durasi tiap tahap dalam detik (bisa disesuaikan)
-const STEP_DURATIONS = [
-  5,    // received → 5 detik
-  30,   // cooking → 30 detik (mode percobaan)
-  0,    // ready (menunggu user ambil)
-];
-
-function formatTime(seconds: number): string {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  if (m > 0) return `${m} mnt ${s} dtk lagi`;
-  return `${s} detik lagi`;
-}
 
 function Tracking() {
   const { id } = Route.useParams();
   const auth = useAuth();
   const nav = useNavigate();
-  const order = auth.orders.find((o) => o.id === id);
-  const isCancelled = order?.status === "dibatalkan";
-
-  const [currentIdx, setCurrentIdx] = useState(0);
-  const [secondsLeft, setSecondsLeft] = useState(STEP_DURATIONS[0]);
   const notifiedRef = useRef(false);
 
+  const { data: order, isLoading } = useQuery({
+    queryKey: ["order", id],
+    queryFn: async () => {
+      const res = await fetch(`/api/orders/${id}`);
+      if (!res.ok) throw new Error("Pesanan tidak ditemukan");
+      return res.json();
+    },
+    refetchInterval: 5000 // Auto refresh tiap 5 detik
+  });
+
+  const isCancelled = order?.status === "cancelled";
+  
+  // Hitung step index berdasarkan status DB
+  let currentIdx = 0;
+  if (order?.status) {
+    currentIdx = steps.findIndex(s => s.key === order.status);
+    if (currentIdx === -1) currentIdx = 0;
+  }
+
   useEffect(() => {
-    if (isCancelled) return;
-    if (currentIdx >= STEP_DURATIONS.length) return;
-    const duration = STEP_DURATIONS[currentIdx];
-    if (duration === 0) return;
+    if (order?.status === "ready" && !notifiedRef.current) {
+      notifiedRef.current = true;
+      toast.success("🎉 Pesanan kamu sudah SIAP! Segera ambil ke tenant ya!", { duration: 8000 });
+    }
+  }, [order?.status]);
 
-    setSecondsLeft(duration);
-    const interval = setInterval(() => {
-      setSecondsLeft(prev => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          const next = currentIdx + 1;
-          setCurrentIdx(next);
-          if (next === 2 && !notifiedRef.current) {
-            notifiedRef.current = true;
-            toast.success("🎉 Pesanan kamu sudah SIAP! Segera ambil ke tenant ya!", { duration: 8000 });
-          }
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [currentIdx, isCancelled]);
-
-  const handleCancel = () => {
-    if (currentIdx >= 2) {
+  const handleCancel = async () => {
+    if (currentIdx >= 2) { // preparing, ready, completed
       toast.error("Pesanan sudah dimasak, tidak bisa dibatalkan lagi.");
       return;
     }
-    auth.cancelOrder(id);
-    toast.error("Pesanan berhasil dibatalkan.");
-    setTimeout(() => nav({ to: "/app/history" }), 500);
+    
+    try {
+      const res = await fetch(`/api/orders/${id}`, {
+        method: "DELETE"
+      });
+      if (!res.ok) throw new Error("Gagal membatalkan pesanan");
+      toast.success("Pesanan berhasil dibatalkan.");
+      nav({ to: "/app/history" });
+    } catch (e: any) {
+      toast.error(e.message || "Gagal membatalkan pesanan");
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="mx-auto max-w-3xl text-center py-20 animate-pulse">
+        Memuat status pesanan...
+      </div>
+    );
+  }
 
   const statusLabel = isCancelled
     ? "Pesanan Dibatalkan"
-    : (["Pesanan Diterima", "Sedang dimasak...", "Siap Diambil! 🎉", "Selesai"][currentIdx] || "Selesai");
+    : (steps[currentIdx]?.label || "Menunggu");
   const isActive = !isCancelled && currentIdx < steps.length - 1;
 
   if (isCancelled) {
@@ -99,7 +99,7 @@ function Tracking() {
           <X className="h-10 w-10" />
         </div>
         <h1 className="font-display text-3xl font-extrabold">Pesanan Dibatalkan</h1>
-        <p className="mt-3 text-muted-foreground">Pesanan #{id} telah dibatalkan. Kamu bisa pesan menu lain kapan saja!</p>
+        <p className="mt-3 text-muted-foreground">Pesanan #{id.split('-')[0]} telah dibatalkan. Kamu bisa pesan menu lain kapan saja!</p>
         <div className="mt-8 flex justify-center gap-3">
           <Link to="/app"><Button>Pesan Lagi</Button></Link>
           <Link to="/app/history"><Button variant="outline">Lihat Riwayat</Button></Link>
@@ -112,7 +112,7 @@ function Tracking() {
     <div className="mx-auto max-w-3xl">
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
         <div className="min-w-0">
-          <div className="text-sm text-muted-foreground">Pesanan #{id}</div>
+          <div className="text-sm text-muted-foreground">Pesanan #{id.split('-')[0]}</div>
           <h1 className="mt-1 font-display text-3xl font-extrabold truncate">{statusLabel}</h1>
         </div>
         <Badge className={`shrink-0 border-none ${isActive ? "gradient-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
@@ -139,16 +139,7 @@ function Tracking() {
                 <div className="flex-1 pb-4">
                   <div className={`font-display font-bold ${active ? "text-primary" : done ? "text-foreground" : "text-muted-foreground"}`}>{s.label}</div>
                   <div className="text-sm text-muted-foreground">{s.desc}</div>
-                  {active && STEP_DURATIONS[i] > 0 && secondsLeft > 0 && (
-                    <div className="mt-3 flex items-center gap-2 text-xs text-primary font-medium">
-                      <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
-                      </span>
-                      Estimasi {formatTime(secondsLeft)}
-                    </div>
-                  )}
-                  {i === 2 && done && (
+                  {i === 3 && done && (
                     <div className="mt-2 text-xs font-semibold text-green-600">✅ Sudah diambil</div>
                   )}
                 </div>
@@ -169,7 +160,7 @@ function Tracking() {
       </Card>
 
       <div className="mt-4 space-y-3">
-        {currentIdx === 2 && (
+        {currentIdx === 3 && (
           <Card className="p-5 border-primary/50 bg-primary/5 text-center">
             <div className="text-sm text-muted-foreground mb-1">Ambil pesanan atas nama:</div>
             <div className="font-display text-2xl font-bold text-primary">{auth.user?.name || "Pengguna"}</div>

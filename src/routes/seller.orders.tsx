@@ -19,33 +19,100 @@ export const Route = createFileRoute("/seller/orders")({
   component: SellerOrders,
 });
 
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
 const columns = [
-  { key: "new", label: "Pesanan Baru", icon: Bell, color: "bg-primary/10 text-primary" },
-  { key: "cooking", label: "Sedang Diproses", icon: ChefHat, color: "bg-warning/15 text-warning" },
-  { key: "ready", label: "Siap Diambil", icon: Check, color: "bg-success/15 text-success" },
-  { key: "done", label: "Selesai", icon: Check, color: "bg-muted text-muted-foreground" },
+  { key: "pending", label: "Pesanan Baru", icon: Bell, color: "bg-primary/10 text-primary" },
+  { key: "preparing", label: "Sedang Diproses", icon: ChefHat, color: "bg-warning/15 text-warning" },
+  { key: "ready", label: "Siap Diambil", icon: Check, color: "bg-success/15 text-success" }
 ];
 
 function SellerOrders() {
-  const [orders, setOrders] = useState(initial);
+  const queryClient = useQueryClient();
+  
+  // Asumsi ID tenant hardcode untuk sementara (atau bisa diambil dari auth ctx kalau tenant punya auth)
+  // Berdasarkan seed data, id tenant: 7ff0b4ff-1e81-4fbf-93f5-66779e5e9b97
+  const sellerId = "7ff0b4ff-1e81-4fbf-93f5-66779e5e9b97";
+
+  const { data: orders = [], isLoading } = useQuery({
+    queryKey: ["seller_orders", sellerId],
+    queryFn: async () => {
+      const res = await fetch(`/api/orders?seller_id=${sellerId}`);
+      if (!res.ok) throw new Error("Gagal mengambil pesanan");
+      return res.json();
+    },
+    refetchInterval: 10000 // Refresh tiap 10 detik
+  });
+
+  const mutation = useMutation({
+    mutationFn: async ({ id, status }: { id: string, status: string }) => {
+      const res = await fetch(`/api/orders/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status })
+      });
+      if (!res.ok) throw new Error("Gagal update status");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["seller_orders", sellerId] });
+    },
+    onError: (e: any) => {
+      toast.error(e.message || "Gagal update status pesanan");
+    }
+  });
 
   const move = (id: string, next: string) => {
-    setOrders(list => list.map(o => o.id === id ? { ...o, status: next } : o));
-    toast.success(`Pesanan ${id} → ${columns.find(c => c.key === next)?.label}`);
+    mutation.mutate({ id, status: next });
+    
+    // Tampilkan label sukses yang ramah
+    let label = "selesai";
+    if (next === "preparing") label = "Sedang Diproses";
+    if (next === "ready") label = "Siap Diambil";
+    toast.success(`Pesanan dipindahkan ke: ${label}`);
   };
 
-  const nextStatus = (s: string) => ({ new: "cooking", cooking: "ready", ready: "done" } as const)[s as "new" | "cooking" | "ready"];
+  const nextStatus = (s: string) => {
+    // kita asumsikan 'pending' -> 'preparing' -> 'ready' -> 'completed'
+    if (s === "pending" || s === "confirmed") return "preparing";
+    if (s === "preparing") return "ready";
+    if (s === "ready") return "completed";
+    return null;
+  };
+  
+  const getNextLabel = (s: string) => {
+    if (s === "pending" || s === "confirmed") return "Proses Pesanan";
+    if (s === "preparing") return "Tandai Siap Diambil";
+    if (s === "ready") return "Selesaikan Pesanan";
+    return "";
+  };
+
+  if (isLoading && orders.length === 0) {
+    return (
+      <div className="space-y-6 animate-pulse">
+        <div className="h-10 w-48 bg-muted rounded"></div>
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="h-[400px] bg-muted/50 rounded-2xl"></div>
+          <div className="h-[400px] bg-muted/50 rounded-2xl"></div>
+          <div className="h-[400px] bg-muted/50 rounded-2xl"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="font-display text-3xl font-extrabold">Kitchen Display</h1>
-        <p className="text-muted-foreground text-sm">Kelola pesanan secara visual, kolom per status.</p>
+        <p className="text-muted-foreground text-sm">Kelola pesanan secara visual, kolom per status. Sinkron otomatis setiap 10 detik.</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {columns.map(col => {
-          const list = orders.filter(o => o.status === col.key);
+          // Anggap 'confirmed' sama dengan 'pending' di kitchen display
+          const list = orders.filter((o: any) => 
+            o.status === col.key || (col.key === "pending" && o.status === "confirmed")
+          );
           return (
             <div key={col.key} className="space-y-3">
               <div className="flex items-center justify-between">
@@ -56,23 +123,44 @@ function SellerOrders() {
                 <Badge variant="secondary">{list.length}</Badge>
               </div>
               <div className="space-y-3 min-h-[300px] rounded-2xl bg-muted/50 p-3">
-                {list.map(o => (
+                {list.map((o: any) => (
                   <Card key={o.id} className="p-4 shadow-soft">
                     <div className="flex items-center justify-between">
-                      <div className="font-display font-bold">{o.id}</div>
-                      <span className="text-xs text-muted-foreground">{o.time}</span>
+                      <div className="font-display font-bold">#{o.id.split('-')[0]}</div>
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(o.created_at).toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' })}
+                      </span>
                     </div>
-                    <div className="mt-1 text-sm text-muted-foreground">{o.customer}</div>
+                    <div className="mt-1 text-sm font-semibold">{o.buyer_name || "Siswa"}</div>
+                    
                     <div className="mt-3 space-y-1">
-                      {o.items.map((it: any, i: number) => (
-                        <div key={i} className="text-sm flex items-center gap-2">
-                          <span className="h-1.5 w-1.5 rounded-full bg-primary" /> {it}
+                      {o.items?.map((it: any, i: number) => (
+                        <div key={i} className="text-sm flex items-start gap-2">
+                          <span className="h-1.5 w-1.5 rounded-full bg-primary mt-1.5 shrink-0" /> 
+                          <div>
+                            {it.qty}x {it.name}
+                            {it.selectedVariants && Object.keys(it.selectedVariants).length > 0 && (
+                              <span className="text-muted-foreground text-xs ml-1">
+                                ({Object.values(it.selectedVariants).join(', ')})
+                              </span>
+                            )}
+                          </div>
                         </div>
                       ))}
                     </div>
+                    
+                    <div className="mt-2 text-xs text-muted-foreground border-t pt-2 border-dashed">
+                      <span className="font-medium">{o.payment_method}</span> • Pickup: <span className="font-medium">{o.pickup_time || '-'}</span>
+                    </div>
+
                     {nextStatus(o.status) && (
-                      <Button size="sm" className="mt-4 w-full gap-1" onClick={() => move(o.id, nextStatus(o.status)!)}>
-                        Pindah ke {columns.find(c => c.key === nextStatus(o.status))?.label}
+                      <Button 
+                        size="sm" 
+                        className="mt-4 w-full gap-1" 
+                        onClick={() => move(o.id, nextStatus(o.status)!)}
+                        disabled={mutation.isPending}
+                      >
+                        {getNextLabel(o.status)}
                         <ArrowRight className="h-3 w-3" />
                       </Button>
                     )}

@@ -97,7 +97,7 @@ function Hero() {
               </div>
             </Card>
             <Card className="col-span-2 row-span-2 overflow-hidden p-0">
-              <img src="/image/nutrisari.jpg" alt="minuman" className="h-full w-full object-cover" />
+              <img src="/image/ayam.jpg" alt="makanan" className="h-full w-full object-cover" />
             </Card>
             <Card className="col-span-4 row-span-2 flex items-center gap-4 p-4">
               <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-success/15 text-success">

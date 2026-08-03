@@ -5,6 +5,8 @@ import { renderErrorPage } from "./lib/error-page";
 import { handleMenusApiRequest } from "./serverFns/api/menus";
 import { handleAuthApiRequest } from "./serverFns/api/auth";
 import { handleMenuItemsApiRequest } from "./serverFns/api/menu-items";
+import { handleSellerStatsApiRequest } from "./serverFns/api/seller-stats";
+import { handleOrdersApiRequest } from "./serverFns/api/orders";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -59,6 +61,12 @@ export default {
       }
       if (url.pathname.startsWith("/api/menu-items")) {
         return await handleMenuItemsApiRequest(request);
+      }
+      if (url.pathname.startsWith("/api/seller-stats")) {
+        return await handleSellerStatsApiRequest(request);
+      }
+      if (url.pathname.startsWith("/api/orders")) {
+        return await handleOrdersApiRequest(request);
       }
 
       const handler = await getServerEntry();
