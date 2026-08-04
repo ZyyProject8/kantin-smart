@@ -1,4 +1,5 @@
 import { query } from "../../lib/db";
+import { getAuthUser } from "./auth";
 
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -11,6 +12,11 @@ export async function handleAdminStatsApiRequest(request: Request) {
   const url = new URL(request.url);
   if (request.method !== "GET" || !url.pathname.startsWith("/api/admin-stats")) {
     return jsonResponse({ error: "Not found" }, 404);
+  }
+
+  const user = await getAuthUser(request);
+  if (!user || user.role !== "admin") {
+    return jsonResponse({ error: "Unauthorized" }, 401);
   }
 
   try {

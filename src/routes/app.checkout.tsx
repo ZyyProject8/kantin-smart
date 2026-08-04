@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { menus, rupiah } from "@/lib/mock-data";
+import { rupiah } from "@/lib/mock-data";
 import { ArrowLeft, ShoppingBag, MapPin, Clock, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -31,8 +31,10 @@ function Checkout() {
 
   const items = auth.cartItems;
   const subtotal = items.reduce((s, i) => {
-    const menu = menus.find((menu) => menu.id === i.id);
-    const addonTotal = menu ? menu.addons.filter((a) => i.selectedAddons.includes(a.id)).reduce((sum, addon) => sum + addon.price, 0) : 0;
+    // addons is already embedded in the cart item
+    const addonTotal = Array.isArray(i.addons) 
+      ? i.addons.filter((a: any) => i.selectedAddons.includes(a.id)).reduce((sum: number, addon: any) => sum + addon.price, 0) 
+      : 0;
     return s + (i.price + addonTotal) * i.qty;
   }, 0);
   const total = subtotal;
@@ -52,8 +54,8 @@ function Checkout() {
 
     setIsSubmitting(true);
     try {
-      // Ambil seller_id dari item pertama (asumsi 1 order = 1 seller, atau fallback ke seller_id dari item mana pun)
-      const sellerId = items[0]?.seller_id || null;
+      // Ambil tenantId dari item pertama
+      const sellerId = items[0]?.tenantId || null;
       
       const payload = {
         user_id: auth.user.id,

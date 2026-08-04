@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useAuth } from "./__root";
-import { menus, rupiah } from "@/lib/mock-data";
+import { rupiah } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -26,8 +26,9 @@ function Cart() {
   const items = auth.cartItems;
 
   const subtotal = items.reduce((s, i) => {
-    const menu = menus.find((menu) => menu.id === i.id);
-    const addonTotal = menu ? menu.addons.filter((a) => i.selectedAddons.includes(a.id)).reduce((sum, addon) => sum + addon.price, 0) : 0;
+    const addonTotal = Array.isArray(i.addons) 
+      ? i.addons.filter((a: any) => i.selectedAddons.includes(a.id)).reduce((sum: number, addon: any) => sum + addon.price, 0) 
+      : 0;
     return s + (i.price + addonTotal) * i.qty;
   }, 0);
   const total = subtotal;
@@ -77,7 +78,7 @@ function Cart() {
                 )}
                 {i.selectedAddons.length > 0 && (
                   <div className="mt-1 text-xs text-muted-foreground">
-                    Tambahan: {menus.find((menu) => menu.id === i.id)?.addons.filter((a) => i.selectedAddons.includes(a.id)).map((a) => a.name).join(", ")}
+                    Tambahan: {Array.isArray(i.addons) ? i.addons.filter((a: any) => i.selectedAddons.includes(a.id)).map((a: any) => a.name).join(", ") : ""}
                   </div>
                 )}
               </div>

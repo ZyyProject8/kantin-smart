@@ -50,9 +50,6 @@ export interface AuthContext {
   removeFromCart: (menuId: string) => void;
   updateQty: (menuId: string, qty: number) => void;
   clearCart: () => void;
-  orders: Order[];
-  addOrder: (order: Order) => void;
-  cancelOrder: (orderId: string) => void;
 }
 
 const AuthContextReact = createContext<AuthContext | null>(null);
@@ -169,42 +166,45 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  const [user, setUser] = useState<User | null>(() => {
-    const stored = typeof window !== "undefined" ? window.localStorage.getItem("kantin_user") : null;
-    return stored ? JSON.parse(stored) : null;
-  });
+  const [user, setUser] = useState<User | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
+  
   const [cartItems, setCartItems] = useState<CartItem[]>(() => {
     const stored = typeof window !== "undefined" ? window.localStorage.getItem("kantin_cart") : null;
-    return stored ? JSON.parse(stored) : [];
-  });
-  const [orders, setOrders] = useState<Order[]>(() => {
-    const stored = typeof window !== "undefined" ? window.localStorage.getItem("kantin_orders") : null;
     return stored ? JSON.parse(stored) : [];
   });
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    window.localStorage.setItem("kantin_user", JSON.stringify(user));
-  }, [user]);
+    fetch("/api/auth/me")
+      .then((res) => {
+        if (res.ok) return res.json();
+        return null;
+      })
+      .then((data) => {
+        setUser(data);
+      })
+      .catch(() => setUser(null))
+      .finally(() => setIsAuthLoading(false));
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     window.localStorage.setItem("kantin_cart", JSON.stringify(cartItems));
   }, [cartItems]);
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    window.localStorage.setItem("kantin_orders", JSON.stringify(orders));
-  }, [orders]);
-
   const auth: AuthContext = {
     user,
     login: (nextUser) => setUser(nextUser),
-    logout: () => {
+    logout: async () => {
       setUser(null);
       setCartItems([]);
-      window.localStorage.removeItem("kantin_user");
       window.localStorage.removeItem("kantin_cart");
+      try {
+        await fetch("/api/auth/logout", { method: "POST" });
+      } catch (e) {
+        console.error(e);
+      }
     },
     cartItems,
     addToCart: (menu, qty, selectedAddons, selectedVariants) => {
@@ -223,11 +223,6 @@ function RootComponent() {
     removeFromCart: (cartItemId) => setCartItems((prev) => prev.filter((item) => item.cartItemId !== cartItemId)),
     updateQty: (cartItemId, qty) => setCartItems((prev) => prev.map((item) => (item.cartItemId === cartItemId ? { ...item, qty } : item))),
     clearCart: () => setCartItems([]),
-    orders,
-    addOrder: (order) => setOrders((prev) => [order, ...prev]),
-    cancelOrder: (orderId) => setOrders((prev) =>
-      prev.map((o) => o.id === orderId ? { ...o, status: "dibatalkan" as OrderStatus } : o)
-    ),
   };
 
   return (

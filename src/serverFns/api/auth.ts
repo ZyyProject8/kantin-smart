@@ -1,11 +1,39 @@
 import { query } from "../../lib/db";
 import bcrypt from "bcryptjs";
+import { signJWT, verifyJWT } from "../../lib/jwt";
 
-function jsonResponse(body: unknown, status = 200) {
+function jsonResponse(body: unknown, status = 200, extraHeaders: HeadersInit = {}) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", ...extraHeaders },
   });
+}
+
+function parseCookies(request: Request) {
+  const cookieHeader = request.headers.get("Cookie") || "";
+  const cookies: Record<string, string> = {};
+  cookieHeader.split(";").forEach((c) => {
+    const [key, val] = c.trim().split("=");
+    if (key && val) cookies[key] = val;
+  });
+  return cookies;
+}
+
+export async function getAuthUser(request: Request) {
+  const cookies = parseCookies(request);
+  const token = cookies.kantin_token;
+  if (!token) return null;
+
+  const decoded = verifyJWT(token);
+  if (!decoded) return null;
+
+  try {
+    const res = await query("SELECT id, name, email, role FROM users WHERE id = $1", [decoded.id]);
+    if (res.rows.length === 0) return null;
+    return res.rows[0];
+  } catch {
+    return null;
+  }
 }
 
 export async function handleAuthApiRequest(request: Request) {
@@ -25,7 +53,6 @@ export async function handleAuthApiRequest(request: Request) {
         return jsonResponse({ error: "Pendaftaran sebagai admin tidak diizinkan." }, 403);
       }
 
-      // Check if user exists
       const existing = await query("SELECT id FROM users WHERE email = $1", [email]);
       if (existing.rows.length > 0) {
         return jsonResponse({ error: "Email already exists" }, 409);
@@ -37,7 +64,12 @@ export async function handleAuthApiRequest(request: Request) {
         [name, email, password_hash, role]
       );
 
-      return jsonResponse(res.rows[0], 201);
+      const user = res.rows[0];
+      const token = signJWT({ id: user.id, role: user.role });
+      
+      return jsonResponse(user, 201, {
+        "Set-Cookie": `kantin_token=${token}; HttpOnly; Path=/; Max-Age=86400; SameSite=Strict`,
+      });
     } catch (e) {
       console.error(e);
       return jsonResponse({ error: "Internal server error" }, 500);
@@ -64,16 +96,41 @@ export async function handleAuthApiRequest(request: Request) {
         return jsonResponse({ error: "Invalid credentials" }, 401);
       }
 
-      return jsonResponse({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
+      const token = signJWT({ id: user.id, role: user.role });
+      
+      const userWithoutPassword = { id: user.id, name: user.name, email: user.email, role: user.role };
+      return jsonResponse(userWithoutPassword, 200, {
+        "Set-Cookie": `kantin_token=${token}; HttpOnly; Path=/; Max-Age=86400; SameSite=Strict`,
       });
     } catch (e) {
       console.error(e);
       return jsonResponse({ error: "Internal server error" }, 500);
     }
+  }
+
+  if (request.method === "GET" && pathname === "/api/auth/me") {
+    try {
+      const cookies = parseCookies(request);
+      const token = cookies.kantin_token;
+      if (!token) return jsonResponse({ error: "Unauthorized" }, 401);
+
+      const decoded = verifyJWT(token);
+      if (!decoded) return jsonResponse({ error: "Unauthorized" }, 401);
+
+      const res = await query("SELECT id, name, email, role FROM users WHERE id = $1", [decoded.id]);
+      if (res.rows.length === 0) return jsonResponse({ error: "User not found" }, 404);
+
+      return jsonResponse(res.rows[0], 200);
+    } catch (e) {
+      console.error(e);
+      return jsonResponse({ error: "Internal server error" }, 500);
+    }
+  }
+
+  if (request.method === "POST" && pathname === "/api/auth/logout") {
+    return jsonResponse({ message: "Logged out" }, 200, {
+      "Set-Cookie": `kantin_token=; HttpOnly; Path=/; Max-Age=0; SameSite=Strict`,
+    });
   }
 
   return jsonResponse({ error: "Not found" }, 404);

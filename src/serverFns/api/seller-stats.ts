@@ -1,4 +1,5 @@
 import { query } from "../../lib/db";
+import { getAuthUser } from "./auth";
 
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -16,6 +17,16 @@ export async function handleSellerStatsApiRequest(request: Request) {
     const sellerId = url.searchParams.get("seller_id");
     if (!sellerId) {
       return jsonResponse({ error: "seller_id is required" }, 400);
+    }
+
+    const user = await getAuthUser(request);
+    if (!user || (user.role !== "seller" && user.role !== "admin")) {
+      return jsonResponse({ error: "Unauthorized" }, 401);
+    }
+    
+    // Ensure seller can only view their own stats unless they are admin
+    if (user.role === "seller" && String(user.id) !== sellerId) {
+      return jsonResponse({ error: "Forbidden" }, 403);
     }
 
     try {
