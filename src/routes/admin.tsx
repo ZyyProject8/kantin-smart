@@ -14,7 +14,7 @@ import { rupiah } from "@/lib/mock-data";
 import { Users, Store, Wallet, ShoppingBag, ArrowUpRight, ShieldCheck, Plus, Trash2, LayoutDashboard, UtensilsCrossed, LogOut, Package, RefreshCw, CheckCircle2, Clock, XCircle } from "lucide-react";
 import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, BarChart, Bar } from "recharts";
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin")({
@@ -253,11 +253,17 @@ function AdminDash() {
 
 // ── Users View ────────────────────────────────────────────────────────────────
 function UsersView() {
-  const { data, isLoading } = useQuery({
-    queryKey: ["admin-stats"],
+  const queryClient = useQueryClient();
+  const [roleFilter, setRoleFilter] = useState<"all" | "seller" | "siswa">("all");
+  const [deleting, setDeleting] = useState<string | null>(null);
+  const [confirmUser, setConfirmUser] = useState<any>(null);
+
+  const { data: users = [], isLoading, refetch } = useQuery({
+    queryKey: ["admin-users", roleFilter],
     queryFn: async () => {
-      const res = await fetch("/api/admin-stats");
-      if (!res.ok) throw new Error();
+      const url = roleFilter === "all" ? "/api/users" : `/api/users?role=${roleFilter}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("Gagal memuat data pengguna");
       return res.json();
     },
   });
@@ -276,54 +282,119 @@ function UsersView() {
     customer: "bg-muted text-muted-foreground",
   };
 
-  if (isLoading) return <div className="py-20 text-center text-muted-foreground animate-pulse">Memuat data pengguna...</div>;
+  const handleDelete = async (user: any) => {
+    setDeleting(user.id);
+    try {
+      const res = await fetch(`/api/users/${user.id}`, { method: "DELETE" });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Gagal menghapus");
+      toast.success(`Akun ${user.name} berhasil dihapus`);
+      refetch();
+      queryClient.invalidateQueries({ queryKey: ["admin-stats"] });
+    } catch (e: any) {
+      toast.error(e.message || "Gagal menghapus akun");
+    } finally {
+      setDeleting(null);
+      setConfirmUser(null);
+    }
+  };
 
-  const users = data?.recentUsers || [];
+  const tenantCount = users.filter((u: any) => u.role === "seller").length;
+  const siswaCount = users.filter((u: any) => u.role === "siswa" || u.role === "customer").length;
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-display text-3xl font-extrabold">Data Pengguna</h1>
-        <p className="text-muted-foreground">Total {data?.totalUsers || 0} pengguna terdaftar</p>
-      </div>
+      {/* Confirm Dialog */}
+      <Dialog open={!!confirmUser} onOpenChange={(open) => { if (!open) setConfirmUser(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Hapus Akun Pengguna</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Anda akan menghapus akun <b>{confirmUser?.name}</b> ({confirmUser?.email}).
+            {confirmUser?.role === "seller" && (
+              <span className="block mt-2 text-destructive font-medium">
+                ⚠️ Semua menu milik tenant ini akan ikut terhapus!
+              </span>
+            )}
+            Tindakan ini tidak dapat dibatalkan.
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmUser(null)}>Batal</Button>
+            <Button
+              variant="destructive"
+              disabled={deleting === confirmUser?.id}
+              onClick={() => confirmUser && handleDelete(confirmUser)}
+            >
+              {deleting === confirmUser?.id ? "Menghapus..." : "Ya, Hapus"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card className="p-5">
-          <div className="text-xs text-muted-foreground">Total Siswa</div>
-          <div className="mt-1 font-display text-3xl font-extrabold">{data?.totalStudents || 0}</div>
-        </Card>
-        <Card className="p-5">
-          <div className="text-xs text-muted-foreground">Total Tenant</div>
-          <div className="mt-1 font-display text-3xl font-extrabold">{data?.totalSellers || 0}</div>
-        </Card>
-        <Card className="p-5">
-          <div className="text-xs text-muted-foreground">Total Menu</div>
-          <div className="mt-1 font-display text-3xl font-extrabold">{data?.totalMenus || 0}</div>
-        </Card>
-      </div>
-
-      <Card className="p-6">
-        <h3 className="font-display font-bold text-lg mb-4">Pengguna Terbaru</h3>
-        <div className="space-y-3">
-          {users.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">Belum ada data pengguna</div>
-          ) : users.map((u: any) => (
-            <div key={u.id} className="flex items-center gap-4 p-3 rounded-lg hover:bg-muted transition">
-              <Avatar className="h-9 w-9">
-                <AvatarFallback className="bg-primary/10 text-primary text-sm">
-                  {u.name.substring(0, 2).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <div className="font-medium truncate">{u.name}</div>
-                <div className="text-xs text-muted-foreground truncate">{u.email}</div>
-              </div>
-              <Badge className={`shrink-0 rounded-full border-none text-xs ${roleColor[u.role] || "bg-muted text-muted-foreground"}`}>
-                {roleLabel[u.role] || u.role}
-              </Badge>
-            </div>
-          ))}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="font-display text-3xl font-extrabold">Kelola Pengguna</h1>
+          <p className="text-muted-foreground">Total {users.length} pengguna · {tenantCount} tenant · {siswaCount} siswa</p>
         </div>
+        <Button variant="outline" size="sm" className="gap-2" onClick={() => refetch()}>
+          <RefreshCw className="h-3.5 w-3.5" /> Refresh
+        </Button>
+      </div>
+
+      {/* Filter Tabs */}
+      <div className="flex gap-2">
+        {(["all", "seller", "siswa"] as const).map(r => (
+          <Button
+            key={r}
+            variant={roleFilter === r ? "default" : "outline"}
+            size="sm"
+            onClick={() => setRoleFilter(r)}
+          >
+            {r === "all" ? "Semua" : r === "seller" ? "Tenant" : "Siswa"}
+          </Button>
+        ))}
+      </div>
+
+      <Card className="overflow-hidden">
+        {isLoading ? (
+          <div className="py-20 text-center text-muted-foreground animate-pulse">Memuat data pengguna...</div>
+        ) : users.length === 0 ? (
+          <div className="py-20 text-center text-muted-foreground">Belum ada pengguna</div>
+        ) : (
+          <div className="divide-y">
+            {users.map((u: any) => (
+              <div key={u.id} className="flex items-center gap-4 p-4 hover:bg-muted/40 transition">
+                <Avatar className="h-10 w-10 shrink-0">
+                  <AvatarFallback className="bg-primary/10 text-primary text-sm font-bold">
+                    {u.name.substring(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold truncate">{u.name}</div>
+                  <div className="text-xs text-muted-foreground truncate">{u.email}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    Bergabung: {new Date(u.created_at).toLocaleDateString("id-ID", { dateStyle: "medium" })}
+                  </div>
+                </div>
+                <Badge className={`shrink-0 rounded-full border-none text-xs ${roleColor[u.role] || "bg-muted text-muted-foreground"}`}>
+                  {roleLabel[u.role] || u.role}
+                </Badge>
+                {u.role !== "admin" && (
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
+                    onClick={() => setConfirmUser(u)}
+                    title="Hapus akun"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </Card>
     </div>
   );

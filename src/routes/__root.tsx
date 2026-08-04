@@ -30,6 +30,7 @@ export type CartItem = MenuItem & {
 
 export type OrderStatus = "diproses" | "selesai" | "dibatalkan";
 
+// Order type (used for local type hints only, actual data comes from API)
 export type Order = {
   id: string;
   items: CartItem[];
@@ -40,6 +41,7 @@ export type Order = {
   pickupTime: string;
   buyerName: string;
 };
+
 
 export interface AuthContext {
   user: User | null;
