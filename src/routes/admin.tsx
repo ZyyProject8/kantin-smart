@@ -158,15 +158,15 @@ function AdminDash() {
       <div className="flex-1 flex flex-col min-w-0">
         {/* Mobile header */}
         <header className="glass border-b sticky top-0 z-30 lg:hidden">
-          <div className="container-page flex h-16 items-center justify-between">
+          <div className="px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-4">
               <Logo />
               <Badge variant="secondary" className="rounded-full">Admin</Badge>
             </div>
-            <div className="flex gap-1">
-              <Button variant={activeTab === "dashboard" ? "default" : "ghost"} size="sm" onClick={() => setActiveTab("dashboard")}>Dashboard</Button>
-              <Button variant={activeTab === "menus" ? "default" : "ghost"} size="sm" onClick={() => setActiveTab("menus")}>Menu</Button>
-              <Button variant={activeTab === "users" ? "default" : "ghost"} size="sm" onClick={() => setActiveTab("users")}>User</Button>
+            <div className="flex gap-1 overflow-x-auto pb-1 -mx-2 px-2 sm:mx-0 sm:px-0">
+              <Button className="shrink-0" variant={activeTab === "dashboard" ? "default" : "ghost"} size="sm" onClick={() => setActiveTab("dashboard")}>Dashboard</Button>
+              <Button className="shrink-0" variant={activeTab === "menus" ? "default" : "ghost"} size="sm" onClick={() => setActiveTab("menus")}>Menu</Button>
+              <Button className="shrink-0" variant={activeTab === "users" ? "default" : "ghost"} size="sm" onClick={() => setActiveTab("users")}>User</Button>
             </div>
           </div>
         </header>
@@ -176,20 +176,20 @@ function AdminDash() {
           {activeTab === "users" && <UsersView />}
           {activeTab === "menus" && (
             <div className="space-y-6">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <h1 className="font-display text-3xl font-extrabold">Kelola Menu</h1>
                   <p className="text-muted-foreground">Semua menu dari seluruh tenant ({menus.length} menu)</p>
                 </div>
                 <Dialog open={addOpen} onOpenChange={setAddOpen}>
                   <DialogTrigger asChild>
-                    <Button size="lg" className="gap-2"><Plus className="h-4 w-4" /> Tambah Menu</Button>
+                    <Button size="lg" className="gap-2 sm:w-auto w-full"><Plus className="h-4 w-4" /> Tambah Menu</Button>
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader><DialogTitle>Tambah Menu Baru</DialogTitle></DialogHeader>
                     <div className="space-y-4">
                       <div className="space-y-1.5"><Label>Nama Menu</Label><Input value={form.name} onChange={e => setForm(f => ({...f, name: e.target.value}))} placeholder="Nasi Goreng Spesial" /></div>
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid sm:grid-cols-2 gap-4">
                         <div className="space-y-1.5"><Label>Harga (Rp)</Label><Input type="number" value={form.price} onChange={e => setForm(f => ({...f, price: e.target.value}))} placeholder="15000" /></div>
                         <div className="space-y-1.5"><Label>Stok</Label><Input type="number" value={form.stock} onChange={e => setForm(f => ({...f, stock: e.target.value}))} placeholder="20" /></div>
                       </div>
@@ -332,12 +332,12 @@ function UsersView() {
         </DialogContent>
       </Dialog>
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl font-extrabold">Kelola Pengguna</h1>
           <p className="text-muted-foreground">Total {users.length} pengguna · {tenantCount} tenant · {siswaCount} siswa</p>
         </div>
-        <Button variant="outline" size="sm" className="gap-2" onClick={() => refetch()}>
+        <Button variant="outline" size="sm" className="gap-2 sm:w-auto w-full" onClick={() => refetch()}>
           <RefreshCw className="h-3.5 w-3.5" /> Refresh
         </Button>
       </div>
@@ -441,12 +441,12 @@ function DashboardView({ auth }: { auth: any }) {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-start justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl font-extrabold">Dashboard Admin</h1>
           <p className="text-muted-foreground">Selamat datang, {auth.user?.name}. Ringkasan operasional platform per hari ini.</p>
         </div>
-        <Button variant="outline" size="sm" className="gap-2" onClick={() => refetch()}>
+        <Button variant="outline" size="sm" className="gap-2 sm:w-auto w-full" onClick={() => refetch()}>
           <RefreshCw className="h-3.5 w-3.5" /> Refresh
         </Button>
       </div>

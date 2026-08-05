@@ -124,7 +124,7 @@ function SellerMenu() {
             <DialogHeader><DialogTitle>Tambah Menu Baru</DialogTitle></DialogHeader>
             <div className="space-y-4">
               <div className="space-y-1.5"><Label>Nama Menu</Label><Input value={form.name} onChange={e => setForm(f => ({...f, name: e.target.value}))} placeholder="Nasi Goreng Spesial" /></div>
-              <div className="grid gap-4 grid-cols-2">
+              <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5"><Label>Harga (Rp)</Label><Input type="number" value={form.price} onChange={e => setForm(f => ({...f, price: e.target.value}))} placeholder="15000" /></div>
                 <div className="space-y-1.5"><Label>Stok Awal</Label><Input type="number" value={form.stock} onChange={e => setForm(f => ({...f, stock: e.target.value}))} placeholder="20" /></div>
               </div>

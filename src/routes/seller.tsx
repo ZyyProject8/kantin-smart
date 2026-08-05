@@ -71,7 +71,7 @@ function SellerLayout() {
 
         <div>
           <header className="glass border-b sticky top-0 z-30">
-            <div className="flex items-center justify-between px-6 h-16">
+            <div className="flex items-center justify-between px-4 md:px-6 h-16">
               <div className="md:hidden"><Logo /></div>
               <div className="hidden md:flex items-center gap-2">
                 <Badge variant="secondary" className="rounded-full">{auth.user.name}</Badge>
@@ -94,7 +94,7 @@ function SellerLayout() {
               })}
             </nav>
           </header>
-          <main className="p-6 md:p-8">
+          <main className="p-4 md:p-8">
             <Outlet />
           </main>
         </div>
