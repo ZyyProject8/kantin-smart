@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { Bell, Moon, ShieldCheck, LogOut, ChevronRight, HelpCircle, User } from "lucide-react";
+import { Bell, ShieldCheck, LogOut, ChevronRight, HelpCircle, User } from "lucide-react";
 
 export const Route = createFileRoute("/app/profile")({
   head: () => ({
@@ -56,8 +56,6 @@ function Profile() {
       <Card className="p-4">
         <h3 className="px-2 pb-2 text-xs uppercase tracking-wider text-muted-foreground">Preferensi</h3>
         <ToggleRow icon={Bell} label="Notifikasi push" defaultChecked />
-        <Separator />
-        <ToggleRow icon={Moon} label="Tema gelap" />
       </Card>
 
       <Button variant="outline" className="w-full gap-2 text-destructive" onClick={handleLogout}>
