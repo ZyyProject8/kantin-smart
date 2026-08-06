@@ -58,7 +58,7 @@ function Hero() {
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link to="/app"><Button size="lg" className="gap-2 shadow-glow">Pesan Sekarang <ArrowRight className="h-4 w-4" /></Button></Link>
-            <a href="/smart-kantin.apk" download><Button size="lg" variant="secondary" className="gap-2"><Download className="h-4 w-4" /> Download APK</Button></a>
+            <a href="/Smart%20Kantin.apk" download><Button size="lg" variant="secondary" className="gap-2"><Download className="h-4 w-4" /> Download APK</Button></a>
             <a href="#cara"><Button size="lg" variant="outline">Lihat Cara Kerja</Button></a>
           </div>
           <div className="mt-8 flex items-center gap-6">
@@ -229,7 +229,7 @@ function Preview() {
             ))}
           </div>
           <div className="mt-10">
-            <a href="/smart-kantin.apk" download>
+            <a href="/Smart%20Kantin.apk" download>
               <Button size="lg" className="gap-2 shadow-glow w-full sm:w-auto rounded-full px-8">
                 <Download className="h-4 w-4" /> Download APK Android
               </Button>
@@ -303,7 +303,7 @@ function CTA() {
             <p className="mt-2 opacity-90 max-w-lg">Bergabung dengan ribuan pengguna dan puluhan tenant yang sudah beralih ke Smart Kantin.</p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
-            <a href="/smart-kantin.apk" download>
+            <a href="/Smart%20Kantin.apk" download>
               <Button size="lg" variant="outline" className="gap-2 w-full sm:w-auto text-primary-foreground border-primary-foreground/30 hover:bg-primary-foreground/10"><Download className="h-4 w-4" /> Download APK</Button>
             </a>
             <Link to="/register">
